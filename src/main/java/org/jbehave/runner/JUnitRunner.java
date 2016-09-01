@@ -70,11 +70,6 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
     }
 
     @Override
-    public int testCount() {
-        return testCount;
-    }
-
-    @Override
     protected Statement childrenInvoker(final RunNotifier notifier) {
         return new Statement() {
             @Override
