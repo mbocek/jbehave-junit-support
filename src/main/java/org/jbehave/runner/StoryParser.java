@@ -109,21 +109,41 @@ public class StoryParser {
             Description scenarioDescription = Description
                 .createSuiteDescription(JUnitRunnerFormatter.buildScenarioText(keywords, scenario.getTitle()));
             for (String step : scenario.getSteps()) {
-                Description description;
-                StepCandidate stepCandidate = findCandidateStep(step);
-                if (stepCandidate != null) {
-                    description = getStepDescription(stepCandidate.getStepsType(), step);
-                } else {
-                    description = getStepDescription(UnknownStep.class, step);
-                }
+                Description description = getStepDescription(step);
                 scenarioDescription.addChild(description);
             }
             return scenarioDescription;
         }
 
+        private Description getStepDescription(String step) {
+            Description result;
+            StepCandidate stepCandidate = findCandidateStep(step);
+            if (stepCandidate != null) {
+                result = getStepDescription(stepCandidate, step);
+            } else {
+                result = getStepDescription(UnknownStep.class, step);
+            }
+            return result;
+        }
+
         private Description getStepDescription(Class<?> stepClass, String step) {
             testCount++;
             return Description.createTestDescription(stepClass, step);
+        }
+
+        private Description getStepDescription(StepCandidate stepCandidate, String step) {
+            Description result;
+            if (stepCandidate.isComposite()) {
+                result = Description.createSuiteDescription(step);
+                String[] childSteps = stepCandidate.composedSteps();
+                for (String childStep : childSteps) {
+                    result.addChild(getStepDescription(childStep));
+                }
+            } else {
+                testCount++;
+                result = Description.createTestDescription(stepCandidate.getStepsType(), step);
+            }
+            return result;
         }
 
         private StepCandidate findCandidateStep(String step) {

@@ -23,7 +23,9 @@ import org.jbehave.core.model.Story;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.jbehave.runner.JUnitRunnerFormatter.buildStoryText;
 import static org.jbehave.runner.JUnitRunnerFormatter.normalizeStoryName;
@@ -43,7 +45,7 @@ public class JUnitStepReporter extends LoggingReporter {
     private final Configuration configuration;
 
     private int executedSteps;
-    private Description currentDescription;
+    private Description currentStoryDescription;
     private Iterator<Description> scenariosDescription;
     private Description currentScenarioDescription;
     private Iterator<Description> stepsDescription;
@@ -63,16 +65,16 @@ public class JUnitStepReporter extends LoggingReporter {
             if (description.isTest()
                 && (isEligibleAs(story, description, BEFORE_STORIES)
                     || isEligibleAs(story, description, AFTER_STORIES))) {
-                currentDescription = description;
-                notifier.fireTestStarted(currentDescription);
+                currentStoryDescription = description;
+                notifier.fireTestStarted(currentStoryDescription);
                 executedSteps++;
 
             }
             if (description.isSuite()
                 && isEligibleAs(description, story.getName())) {
-                currentDescription = description;
-                notifier.fireTestStarted(currentDescription);
-                scenariosDescription = currentDescription.getChildren().iterator();
+                currentStoryDescription = description;
+                notifier.fireTestStarted(currentStoryDescription);
+                scenariosDescription = currentStoryDescription.getChildren().iterator();
             }
         }
         super.beforeStory(story, givenStory);
@@ -81,23 +83,34 @@ public class JUnitStepReporter extends LoggingReporter {
     @Override
     public void afterStory(boolean givenOrRestartingStory) {
         super.afterStory(givenOrRestartingStory);
-        if (currentDescription != null) {
-            notifier.fireTestFinished(currentDescription);
+        if (currentStoryDescription != null) {
+            notifier.fireTestFinished(currentStoryDescription);
         }
     }
 
     @Override
     public void beforeScenario(String scenarioTitle) {
         currentScenarioDescription = scenariosDescription.next();
-        stepsDescription = currentScenarioDescription.getChildren().iterator();
+        stepsDescription = getAllChildren(currentScenarioDescription.getChildren()).iterator();
         notifier.fireTestStarted(currentScenarioDescription);
         super.beforeScenario(scenarioTitle);
     }
 
+    private List<Description> getAllChildren(ArrayList<Description> children) {
+        List<Description> result = new ArrayList<>();
+        for (Description description : children) {
+            result.add(description);
+            if (!description.isEmpty()) {
+                result.addAll(getAllChildren(description.getChildren()));
+            }
+        }
+        return result;
+    }
+
     @Override
     public void afterScenario() {
-        notifier.fireTestFinished(currentScenarioDescription);
         super.afterScenario();
+        notifier.fireTestFinished(currentScenarioDescription);
     }
 
     @Override
@@ -115,8 +128,7 @@ public class JUnitStepReporter extends LoggingReporter {
     }
 
     private boolean isEligibleAs(Story story, Description description, String storyName) {
-        return story.getName().equals(storyName)
-            && isEligibleAs(description, storyName);
+        return story.getName().equals(storyName) && description.getDisplayName().startsWith(storyName);
     }
 
     private boolean isEligibleAs(Description description, String storyName) {

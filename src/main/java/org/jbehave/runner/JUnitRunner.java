@@ -31,6 +31,8 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +52,10 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
     private final Embedder embedder;
     private int testCount;
 
-    public JUnitRunner(Class<? extends ConfigurableEmbedder> testClass) throws InitializationError, IllegalAccessException, InstantiationException {
+    public JUnitRunner(Class<? extends ConfigurableEmbedder> testClass)
+        throws InitializationError, IllegalAccessException, InstantiationException, InvocationTargetException,
+        NoSuchMethodException {
+
         super(testClass);
         ConfigurableEmbedder configurableEmbedder = testClass.newInstance();
         embedder = configurableEmbedder.configuredEmbedder();
@@ -122,7 +127,7 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
     }
 
     private void addSuite(List<Description> descriptions, String storyName) {
-        descriptions.add(Description.createSuiteDescription(JUnitRunnerFormatter.buildStoryText(storyName)));
+        descriptions.add(Description.createTestDescription(Story.class, storyName));
         testCount++;
     }
 
@@ -135,18 +140,46 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
         return candidateSteps;
     }
 
-    private List<String> getStoryPaths(ConfigurableEmbedder configurableEmbedder) {
+    private List<String> getStoryPaths(ConfigurableEmbedder configurableEmbedder)
+        throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+
         List<String> stories;
         if (configurableEmbedder instanceof JUnitStory) {
             Configuration configuration = configurableEmbedder.configuredEmbedder().configuration();
             String story = configuration.storyPathResolver().resolve(configurableEmbedder.getClass());
             stories = Arrays.asList(story);
         } else {
-            throw new IllegalArgumentException("Unsupported Story class");
+            Method method = lookupStoryPathsMethod(configurableEmbedder.getClass());
+            method.setAccessible(true);
+            stories = ((List<String>) method.invoke(configurableEmbedder, (Object[]) null));
         }
 
         return stories;
     }
 
+    private Method lookupStoryPathsMethod(Class<? extends ConfigurableEmbedder> testClass)
+        throws NoSuchMethodException {
 
+        Method method;
+        try {
+            method = methodLookup(testClass, "storyPaths");
+        } catch (NoSuchMethodException e) {
+            method = testClass.getMethod("storyPaths", (Class[]) null);
+        }
+        return method;
+    }
+
+    private Method methodLookup(Class<?> clazz, String methodName) throws NoSuchMethodException {
+        while (clazz != null) {
+            Method[] methods = clazz.getDeclaredMethods();
+            for (Method method : methods) {
+                // Test any other things about it beyond the name...
+                if (method.getName().equals(methodName)) {
+                    return method;
+                }
+            }
+            clazz = clazz.getSuperclass();
+        }
+        throw new NoSuchMethodException("Can not find method: " + methodName);
+    }
 }

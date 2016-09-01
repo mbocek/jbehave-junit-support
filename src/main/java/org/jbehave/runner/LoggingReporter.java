@@ -82,7 +82,6 @@ public class LoggingReporter implements StoryReporter {
     @Override
     public void scenarioNotAllowed(Scenario scenario, String filter) {
         logger.info("Scenario: {} not allowed by filer: {}", scenario.getTitle(), filter);
-
     }
 
     @Override
