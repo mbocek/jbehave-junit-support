@@ -45,7 +45,7 @@ public class TestSteps {
         logger.info("Signing in user: {}", userName);
     }
 
-    @Then("User with name $userName is properly sign in")
+    @Then("User with name $userName is properly signed in")
     public void verifySignIn(String userName) {
         logger.info("User: {} was properly signed in", userName);
     }
@@ -69,5 +69,10 @@ public class TestSteps {
     @Composite(steps = { "When Sign up user",
                          "When Auditing user" })
     public void signUpWithAudit() {
+    }
+
+    @Then("Failed step")
+    public void failedStep() {
+        throw new RuntimeException("Failing step...");
     }
 }

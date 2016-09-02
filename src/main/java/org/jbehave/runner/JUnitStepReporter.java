@@ -19,8 +19,10 @@
 package org.jbehave.runner;
 
 import org.jbehave.core.configuration.Configuration;
+import org.jbehave.core.failures.UUIDExceptionWrapper;
 import org.jbehave.core.model.Story;
 import org.junit.runner.Description;
+import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 
 import java.util.ArrayList;
@@ -125,6 +127,33 @@ public class JUnitStepReporter extends LoggingReporter {
         super.successful(step);
         executedSteps++;
         notifier.fireTestFinished(currentStepDescription);
+    }
+
+    @Override
+    public void failed(String step, Throwable cause) {
+        if (cause instanceof UUIDExceptionWrapper) {
+            cause = cause.getCause();
+        }
+        super.failed(step, cause);
+        notifier.fireTestFailure(new Failure(currentStepDescription, cause));
+        notifier.fireTestFinished(currentStepDescription);
+    }
+
+    @Override
+    public void notPerformed(String step) {
+        currentStepDescription = stepsDescription.next();
+        super.notPerformed(step);
+        notifier.fireTestIgnored(currentStepDescription);
+    }
+
+    @Override
+    public void ignorable(String step) {
+        super.ignorable(step);
+    }
+
+    @Override
+    public void pending(String step) {
+        super.pending(step);
     }
 
     private boolean isEligibleAs(Story story, Description description, String storyName) {

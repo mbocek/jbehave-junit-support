@@ -126,7 +126,7 @@ public class LoggingReporter implements StoryReporter {
 
     @Override
     public void beforeStep(String step) {
-        logger.debug("Before step: {}", step);
+        logger.info("Before step: {}", step);
     }
 
     @Override
