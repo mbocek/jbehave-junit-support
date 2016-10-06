@@ -34,7 +34,7 @@ class FailedStepStoriesTest extends Specification {
     def runner = new JUnitRunner(FailedStepStories)
     def notifier = Mock(RunNotifier)
 
-    def "Test correct notificatins"() {
+    def "Test correct notifications"() {
         when:
         runner.run(notifier)
 

@@ -141,7 +141,7 @@ public class LoggingReporter implements StoryReporter {
 
     @Override
     public void pending(String step) {
-        logger.info("Pending step: {}", step);
+        logger.error("Pending step: {}", step);
     }
 
     @Override
@@ -176,6 +176,6 @@ public class LoggingReporter implements StoryReporter {
 
     @Override
     public void pendingMethods(List<String> methods) {
-        logger.info("Pending methods: {}", methods);
+        logger.error("Pending methods: {}", methods);
     }
 }

@@ -18,7 +18,7 @@
  */
 package org.jbehave.runner
 
-import org.jbehave.runner.story.CompositeStepStories
+import org.jbehave.runner.story.PendingStepStories
 import org.junit.runner.Description
 import org.junit.runner.notification.RunNotifier
 import spock.lang.Shared
@@ -26,12 +26,12 @@ import spock.lang.Specification
 
 /**
  * @author Michal Bocek
- * @since 26/08/16
+ * @since 06/10/16
  */
-class CompositeStepStoriesTest extends Specification {
+class PendingStepStoriesTest extends Specification {
 
     @Shared
-    def runner = new JUnitRunner(CompositeStepStories)
+    def runner = new JUnitRunner(PendingStepStories)
     def notifier = Mock(RunNotifier)
 
     def "Test correct notifications"() {
@@ -43,28 +43,21 @@ class CompositeStepStoriesTest extends Specification {
         then:
         1 * notifier.fireTestFinished({((Description)it).displayName.startsWith("BeforeStories")})
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.equals("Story: CompositeStep")})
+        1 * notifier.fireTestStarted({((Description)it).displayName.equals("Story: PendingStep")})
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.equals("Scenario: Composite step")})
-        /*
-         * Composite step is fully reported (successed) before running children steps
-         */
-        then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.contains("When Sign up with audit")})
-        then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.contains("When Sign up with audit")})
-        then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.contains("When Sign up user")})
-        then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.contains("When Sign up user")})
+        1 * notifier.fireTestStarted({((Description)it).displayName.equals("Scenario: Pending step")})
         then:
         1 * notifier.fireTestStarted({((Description)it).displayName.contains("When Auditing user")})
         then:
         1 * notifier.fireTestFinished({((Description)it).displayName.contains("When Auditing user")})
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.equals("Scenario: Composite step")})
+        1 * notifier.fireTestIgnored({((Description)it).displayName.contains("When User signing in")})
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.equals("Story: CompositeStep")})
+        1 * notifier.fireTestIgnored({((Description)it).displayName.contains("Then User with name Tester is properly signed in")})
+        then:
+        1 * notifier.fireTestFinished({((Description)it).displayName.equals("Scenario: Pending step")})
+        then:
+        1 * notifier.fireTestFinished({((Description)it).displayName.equals("Story: PendingStep")})
         then:
         1 * notifier.fireTestStarted({((Description)it).displayName.startsWith("AfterStories")})
         then:
@@ -77,15 +70,15 @@ class CompositeStepStoriesTest extends Specification {
         def children = desc.children
 
         then:
-        desc.testClass == CompositeStepStories
+        desc.testClass == PendingStepStories
         children.size() == 3
         children[0].displayName =~ /BeforeStories.*/
-        children[1].displayName == "Story: CompositeStep"
-        children[1].children[0].displayName == "Scenario: Composite step"
-        children[1].children[0].children[0].displayName == "When Sign up with audit"
-        children[1].children[0].children[0].children.size() == 2
-        children[1].children[0].children[0].children[0].displayName =~ /When Sign up(.*)/
-        children[1].children[0].children[0].children[1].displayName =~ /When Auditing user(.*)/
+        children[1].displayName == "Story: PendingStep"
+        children[1].children[0].displayName == "Scenario: Pending step"
+        children[1].children[0].children.size() == 3
+        children[1].children[0].children[0].displayName =~ /When Auditing user(.*)/
+        children[1].children[0].children[1].displayName =~ /When User signing in/
+        children[1].children[0].children[2].displayName =~ /Then User with name Tester is properly signed in/
         children[2].displayName =~ /AfterStories.*/
     }
 }

@@ -34,7 +34,7 @@ class BasicStoryTest extends Specification {
     def runner = new JUnitRunner(BasicStory)
     def notifier = Mock(RunNotifier)
 
-    def "Test correct notificatins"() {
+    def "Test correct notifications"() {
         when:
         runner.run(notifier)
 

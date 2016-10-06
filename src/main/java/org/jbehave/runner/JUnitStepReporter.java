@@ -153,7 +153,9 @@ public class JUnitStepReporter extends LoggingReporter {
 
     @Override
     public void pending(String step) {
+        currentStepDescription = stepsDescription.next();
         super.pending(step);
+        notifier.fireTestIgnored(currentStepDescription);
     }
 
     private boolean isEligibleAs(Story story, Description description, String storyName) {
