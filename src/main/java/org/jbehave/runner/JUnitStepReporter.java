@@ -28,7 +28,9 @@ import org.junit.runner.notification.RunNotifier;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import static java.util.Objects.nonNull;
 import static org.jbehave.runner.JUnitRunnerFormatter.buildStoryText;
 import static org.jbehave.runner.JUnitRunnerFormatter.normalizeStoryName;
 
@@ -48,9 +50,11 @@ public class JUnitStepReporter extends LoggingReporter {
 
     private int executedSteps;
     private Description currentStoryDescription;
-    private Iterator<Description> scenariosDescription;
+    private Iterator<Description> scenariosDescriptions;
     private Description currentScenarioDescription;
-    private Iterator<Description> stepsDescription;
+    private Iterator<Description> examplesDescriptions;
+    private Description currentExampleDescription;
+    private Iterator<Description> stepsDescriptions;
     private Description currentStepDescription;
 
     public JUnitStepReporter(RunNotifier notifier, int testCount, Description rootDescription,
@@ -76,7 +80,7 @@ public class JUnitStepReporter extends LoggingReporter {
                 && isEligibleAs(description, story.getName())) {
                 currentStoryDescription = description;
                 notifier.fireTestStarted(currentStoryDescription);
-                scenariosDescription = currentStoryDescription.getChildren().iterator();
+                scenariosDescriptions = currentStoryDescription.getChildren().iterator();
             }
         }
         super.beforeStory(story, givenStory);
@@ -92,18 +96,36 @@ public class JUnitStepReporter extends LoggingReporter {
 
     @Override
     public void beforeScenario(String scenarioTitle) {
-        currentScenarioDescription = scenariosDescription.next();
-        stepsDescription = getAllChildren(currentScenarioDescription.getChildren()).iterator();
+        currentScenarioDescription = scenariosDescriptions.next();
+        stepsDescriptions = getAllChildren(currentScenarioDescription.getChildren(), new ArrayList<>()).iterator();
+        examplesDescriptions = getAllExamples(currentScenarioDescription.getChildren()).iterator();
         notifier.fireTestStarted(currentScenarioDescription);
         super.beforeScenario(scenarioTitle);
     }
 
-    private List<Description> getAllChildren(ArrayList<Description> children) {
+    private List<Description> getAllExamples(ArrayList<Description> children) {
         List<Description> result = new ArrayList<>();
+        for (Description child : children) {
+            if (isExample(child)) {
+                result.add(child);
+            }
+        }
+        return result;
+    }
+
+    private boolean isExample(Description description) {
+       return  description.getDisplayName().startsWith(configuration.keywords().examplesTableRow() + " ");
+    }
+
+    private List<Description> getAllChildren(ArrayList<Description> children, List<Description> result) {
         for (Description description : children) {
-            result.add(description);
-            if (!description.isEmpty()) {
-                result.addAll(getAllChildren(description.getChildren()));
+            if (description.isSuite()) {
+                if (!isExample(description)) {
+                    result.add(description);
+                }
+                getAllChildren(description.getChildren(), result);
+            } else {
+                result.add(description);
             }
         }
         return result;
@@ -117,7 +139,7 @@ public class JUnitStepReporter extends LoggingReporter {
 
     @Override
     public void beforeStep(String step) {
-        currentStepDescription = stepsDescription.next();
+        currentStepDescription = stepsDescriptions.next();
         notifier.fireTestStarted(currentStepDescription);
         super.beforeStep(step);
     }
@@ -141,7 +163,7 @@ public class JUnitStepReporter extends LoggingReporter {
 
     @Override
     public void notPerformed(String step) {
-        currentStepDescription = stepsDescription.next();
+        currentStepDescription = stepsDescriptions.next();
         super.notPerformed(step);
         notifier.fireTestIgnored(currentStepDescription);
     }
@@ -153,9 +175,25 @@ public class JUnitStepReporter extends LoggingReporter {
 
     @Override
     public void pending(String step) {
-        currentStepDescription = stepsDescription.next();
+        currentStepDescription = stepsDescriptions.next();
         super.pending(step);
         notifier.fireTestIgnored(currentStepDescription);
+    }
+
+    @Override
+    public void example(Map<String, String> tableRow) {
+        if (nonNull(currentExampleDescription)) {
+            notifier.fireTestFinished(currentExampleDescription);
+        }
+        currentExampleDescription = examplesDescriptions.next();
+        notifier.fireTestStarted(currentExampleDescription);
+        super.example(tableRow);
+    }
+
+    @Override
+    public void afterExamples() {
+        notifier.fireTestFinished(currentExampleDescription);
+        super.afterExamples();
     }
 
     private boolean isEligibleAs(Story story, Description description, String storyName) {

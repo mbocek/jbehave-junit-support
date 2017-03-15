@@ -41,6 +41,10 @@ public class JUnitRunnerFormatter {
         return formatWithoutSemicolon(keywords.scenario(), text);
     }
 
+    public static String buildExampleText(Keywords keywords, String text) {
+        return formatWithoutSemicolon(keywords.examplesTableRow(), text);
+    }
+
     public static String normalizeStoryName(String storyName) {
         String result;
         if (storyName.contains(".")) {
@@ -52,11 +56,14 @@ public class JUnitRunnerFormatter {
     }
 
     private static String formatWithoutSemicolon(String prefix, String text) {
-        return String.format(FORMAT_SIMPLE, prefix, text);
+        return String.format(FORMAT_SIMPLE, prefix, stripDots(text));
     }
 
     private static String formatWithSemicolon(String prefix, String text) {
-        return String.format(FORMAT_SEMICOLON, prefix, text);
+        return String.format(FORMAT_SEMICOLON, prefix, stripDots(text));
     }
 
+    private static String stripDots(String text) {
+        return text.replaceAll("\\.", "");
+    }
 }

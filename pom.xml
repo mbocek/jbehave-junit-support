@@ -12,13 +12,14 @@
     <url>http://maven.apache.org</url>
 
     <properties>
-        <version.jdk>1.7</version.jdk>
+        <version.jdk>1.8</version.jdk>
         <version.junit>4.12</version.junit>
         <version.jbehave>4.0.5</version.jbehave>
         <version.slf4j>1.7.21</version.slf4j>
         <version.groovy>2.4.7</version.groovy>
         <version.spock>1.0-groovy-2.4</version.spock>
         <version.cglib>3.2.4</version.cglib>
+        <version.lombok>1.16.0</version.lombok>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -96,6 +97,12 @@
             <artifactId>logback-classic</artifactId>
             <version>1.1.7</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${version.lombok}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

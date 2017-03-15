@@ -18,18 +18,23 @@
  */
 package org.jbehave.runner;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.jbehave.core.configuration.Keywords;
-import org.jbehave.core.model.Scenario;
+import org.jbehave.core.embedder.PerformableTree;
 import org.jbehave.core.model.Story;
 import org.jbehave.core.steps.CandidateSteps;
 import org.jbehave.core.steps.StepCandidate;
 import org.junit.runner.Description;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static org.jbehave.runner.JUnitRunnerFormatter.buildStoryText;
-import static org.jbehave.runner.JUnitRunnerFormatter.normalizeStoryName;
+import static org.jbehave.runner.JUnitRunnerFormatter.*;
+import static org.junit.runner.Description.createSuiteDescription;
+import static org.junit.runner.Description.createTestDescription;
 
 /**
  * @author Michal Bocek
@@ -37,36 +42,24 @@ import static org.jbehave.runner.JUnitRunnerFormatter.normalizeStoryName;
  */
 public class StoryParser {
 
-    private Story story;
+    private static final String STORIES_BEFORE = "BeforeStories";
+    private static final String STORIES_AFTER= "AfterStories";
 
-    private StoryParser(Story story) {
-        this.story = story;
+    private PerformableTree performableTree;
+
+    private StoryParser(PerformableTree performableTree) {
+        this.performableTree = performableTree;
     }
 
-    public Story getStory() {
-        return story;
-    }
-
-    public static StoryDescription parse(Story story) {
+    public static StoryDescription parse(PerformableTree story) {
         return new StoryDescription(new StoryParser(story));
     }
 
+    @Getter
+    @AllArgsConstructor
     public static class StoryResult {
-        private final Description storyDescription;
+        private final List<Description> storyDescriptions;
         private final int testCount;
-
-        public StoryResult(Description storyDescription, int testCount) {
-            this.storyDescription = storyDescription;
-            this.testCount = testCount;
-        }
-
-        public Description getStoryDescription() {
-            return storyDescription;
-        }
-
-        public int getTestCount() {
-            return testCount;
-        }
     }
 
     public static class StoryDescription {
@@ -92,27 +85,46 @@ public class StoryParser {
         }
 
         public StoryResult buildDescription() {
-            Description description = createDescription(storyParser.getStory());
-            return new StoryResult(description, testCount);
+            List<PerformableTree.PerformableStory> stories = storyParser.performableTree.getRoot().getStories();
+            List<Description> descriptions = stories.stream()
+                .map(story -> createStoryDescription(story))
+                .collect(Collectors.toList());
+            descriptions.add(0, createTestDescription(Story.class, STORIES_BEFORE));
+            descriptions.add(createTestDescription(Story.class, STORIES_AFTER));
+            return new StoryResult(descriptions, testCount);
         }
 
-        private Description createDescription(Story story) {
-            Description description = Description.createSuiteDescription(
-                buildStoryText(normalizeStoryName(story.getName())));
-            for (Scenario scenario : story.getScenarios()) {
-                description.addChild(getScenarioDescription(scenario));
-            }
+        private Description createStoryDescription(PerformableTree.PerformableStory performableStory) {
+            Description description = createSuiteDescription(
+                buildStoryText(normalizeStoryName(performableStory.getStory().getName())));
+            performableStory.getScenarios().forEach(
+                performableScenario -> getScenarioDescription(performableScenario).forEach(
+                    scenarioDescription -> description.addChild(scenarioDescription))
+            );
             return description;
         }
 
-        private Description getScenarioDescription(Scenario scenario) {
-            Description scenarioDescription = Description
-                .createSuiteDescription(JUnitRunnerFormatter.buildScenarioText(keywords, scenario.getTitle()));
-            for (String step : scenario.getSteps()) {
-                Description description = getStepDescription(step);
-                scenarioDescription.addChild(description);
+        private List<Description> getScenarioDescription(PerformableTree.PerformableScenario performableScenario) {
+            Description scenarioDescription = createSuiteDescription(
+                JUnitRunnerFormatter.buildScenarioText(keywords, performableScenario.getScenario().getTitle()));
+            if (performableScenario.hasExamples()) {
+                performableScenario.getExamples()
+                    .stream()
+                    .map(examplePerformableScenario -> {
+                        Description exampleDescription = createSuiteDescription(
+                            buildExampleText(keywords, examplePerformableScenario.getParameters().toString()));
+                        performableScenario.getScenario()
+                            .getSteps()
+                            .forEach(step -> exampleDescription.addChild(getStepDescription(step)));
+                        return exampleDescription;
+                    })
+                    .forEach(exampleDescription -> scenarioDescription.addChild(exampleDescription));
+            } else {
+                performableScenario.getScenario()
+                    .getSteps()
+                    .forEach(step -> scenarioDescription.addChild(getStepDescription(step)));
             }
-            return scenarioDescription;
+            return Arrays.asList(scenarioDescription);
         }
 
         private Description getStepDescription(String step) {
@@ -128,32 +140,27 @@ public class StoryParser {
 
         private Description getStepDescription(Class<?> stepClass, String step) {
             testCount++;
-            return Description.createTestDescription(stepClass, step);
+            return createTestDescription(stepClass, step);
         }
 
         private Description getStepDescription(StepCandidate stepCandidate, String step) {
             Description result;
             if (stepCandidate.isComposite()) {
-                result = Description.createSuiteDescription(step);
-                String[] childSteps = stepCandidate.composedSteps();
-                for (String childStep : childSteps) {
-                    result.addChild(getStepDescription(childStep));
-                }
+                result = createSuiteDescription(step);
+                Arrays.stream(stepCandidate.composedSteps())
+                    .forEach(childStep -> result.addChild(getStepDescription(childStep)));
             } else {
                 testCount++;
-                result = Description.createTestDescription(stepCandidate.getStepsType(), step);
+                result = createTestDescription(stepCandidate.getStepsType(), step);
             }
             return result;
         }
 
         private StepCandidate findCandidateStep(String step) {
-            StepCandidate result = null;
-            for (StepCandidate stepCandidate : stepCandidates) {
-                if (stepCandidate.matches(step)) {
-                    result = stepCandidate;
-                }
-            }
-            return result;
+            return stepCandidates.stream()
+                .filter(stepCandidate -> stepCandidate.matches(step))
+                .findFirst()
+                .orElse(null);
         }
     }
 

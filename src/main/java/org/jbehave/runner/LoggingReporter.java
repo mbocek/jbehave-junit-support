@@ -19,7 +19,7 @@
 package org.jbehave.runner;
 
 import org.jbehave.core.model.*;
-import org.jbehave.core.reporters.StoryReporter;
+import org.jbehave.core.reporters.NullStoryReporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +30,7 @@ import java.util.Map;
  * @author Michal Bocek
  * @since 29/08/16
  */
-public class LoggingReporter implements StoryReporter {
+public class LoggingReporter extends NullStoryReporter {
     private static Logger logger = LoggerFactory.getLogger(LoggingReporter.class);
 
     @Override

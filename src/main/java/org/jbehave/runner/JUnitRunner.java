@@ -22,9 +22,11 @@ import org.jbehave.core.ConfigurableEmbedder;
 import org.jbehave.core.configuration.Configuration;
 import org.jbehave.core.embedder.Embedder;
 import org.jbehave.core.embedder.PerformableTree;
+import org.jbehave.core.failures.BatchFailures;
 import org.jbehave.core.junit.JUnitStory;
 import org.jbehave.core.model.Story;
 import org.jbehave.core.steps.CandidateSteps;
+import org.jbehave.core.steps.NullStepMonitor;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -49,7 +51,7 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
     private final List<String> storyPaths;
     private final List<CandidateSteps> candidateSteps;
     private final Description description;
-    private final Embedder embedder;
+    private final Embedder configuredEmbedder;
     private int testCount;
 
     public JUnitRunner(Class<? extends ConfigurableEmbedder> testClass)
@@ -58,10 +60,10 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
 
         super(testClass);
         ConfigurableEmbedder configurableEmbedder = testClass.newInstance();
-        embedder = configurableEmbedder.configuredEmbedder();
+        configuredEmbedder = configurableEmbedder.configuredEmbedder();
         storyPaths = getStoryPaths(configurableEmbedder);
-        candidateSteps = getCandidateStepsWithNullStepMonitor(embedder);
-        description = buildStoryDescription(testClass, embedder.configuration(), storyPaths, candidateSteps);
+        candidateSteps = getCandidateStepsWithNullStepMonitor(configuredEmbedder);
+        description = buildStoryDescription(testClass, configuredEmbedder.configuration(), storyPaths, candidateSteps);
     }
 
     @Override
@@ -75,18 +77,18 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
             @Override
             public void evaluate() throws Throwable {
                 JUnitStepReporter junitReporter = new JUnitStepReporter(notifier, testCount, description,
-                    embedder.configuration());
+                    configuredEmbedder.configuration());
 
-                embedder.configuration()
+                configuredEmbedder.configuration()
                     .storyReporterBuilder()
                     .withReporters(junitReporter);
 
                 try {
-                    embedder.runStoriesAsPaths(storyPaths);
+                    configuredEmbedder.runStoriesAsPaths(storyPaths);
                 } catch (Throwable e) {
                     throw new RuntimeException(e);
                 } finally {
-                    embedder.generateCrossReference();
+                    configuredEmbedder.generateCrossReference();
                 }
             }
         };
@@ -98,9 +100,7 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
         Description description = Description.createSuiteDescription(testClass);
         List<Description> descriptions = new ArrayList<>();
 
-        addSuite(descriptions, BEFORE_STORIES);
         addStories(descriptions, storyPaths, configuration);
-        addSuite(descriptions, AFTER_STORIES);
 
         for (Description currentDescription : descriptions) {
             description.addChild(currentDescription);
@@ -109,29 +109,37 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
     }
 
     private void addStories(List<Description> descriptions, List<String> storyPaths, Configuration configuration) {
-        PerformableTree performableTree = new PerformableTree();
-        for (String storyPath : storyPaths) {
-            Story story = performableTree.storyOfPath(configuration, storyPath);
-            StoryParser.StoryResult storyResult = StoryParser.parse(story)
-                .withCandidateSteps(candidateSteps)
-                .withKeywords(configuration.keywords())
-                .buildDescription();
-            descriptions.add(storyResult.getStoryDescription());
-            testCount += storyResult.getTestCount();
-        }
+        StoryParser.StoryResult storyResult = StoryParser.parse(createPerformableTree())
+            .withCandidateSteps(candidateSteps)
+            .withKeywords(configuration.keywords())
+            .buildDescription();
+
+        descriptions.addAll(storyResult.getStoryDescriptions());
+        testCount += storyResult.getTestCount();
     }
 
-    private void addSuite(List<Description> descriptions, String storyName) {
-        descriptions.add(Description.createTestDescription(Story.class, storyName));
-        testCount++;
+    private PerformableTree createPerformableTree() {
+        BatchFailures failures = new BatchFailures(configuredEmbedder.embedderControls().verboseFailures());
+        PerformableTree performableTree = new PerformableTree();
+        PerformableTree.RunContext context = performableTree.newRunContext(configuredEmbedder.configuration(),
+            configuredEmbedder.stepsFactory(), configuredEmbedder.embedderMonitor(),
+            configuredEmbedder.metaFilter(), failures);
+
+        List<Story> stories = new ArrayList<>();
+        for (String storyPath : storyPaths) {
+            stories.add(performableTree.storyOfPath(configuredEmbedder.configuration(), storyPath));
+        }
+        performableTree.addStories(context, stories);
+
+        return performableTree;
     }
 
     private List<CandidateSteps> getCandidateStepsWithNullStepMonitor(Embedder embedder) {
-//        NullStepMonitor stepMonitor = new NullStepMonitor();
+        NullStepMonitor stepMonitor = new NullStepMonitor();
         List<CandidateSteps> candidateSteps = embedder.stepsFactory().createCandidateSteps();
-//        for (CandidateSteps candidateStep : candidateSteps) {
-//            candidateStep.configuration().useStepMonitor(stepMonitor);
-//        }
+        for (CandidateSteps candidateStep : candidateSteps) {
+            candidateStep.configuration().useStepMonitor(stepMonitor);
+        }
         return candidateSteps;
     }
 
