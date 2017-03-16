@@ -26,15 +26,16 @@ import org.jbehave.core.configuration.Keywords;
  */
 public class JUnitRunnerFormatter {
 
-    public static final String FORMAT_SIMPLE = "%s %s";
-    public static final String FORMAT_SEMICOLON = "%s: %s";
+    private static final String FORMAT_SIMPLE = "%s %s";
+    private static final String FORMAT_SEMICOLON = "%s: %s";
+    private static final String STORY = "Story";
 
     private JUnitRunnerFormatter() {
         throw new UnsupportedOperationException();
     }
 
     public static String buildStoryText(String text) {
-        return formatWithSemicolon("Story", text);
+        return formatWithSemicolon(STORY, text);
     }
 
     public static String buildScenarioText(Keywords keywords, String text) {

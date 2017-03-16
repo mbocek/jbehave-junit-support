@@ -29,6 +29,7 @@ import org.junit.runner.Description;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,7 +46,7 @@ public class StoryParser {
     private static final String STORIES_BEFORE = "BeforeStories";
     private static final String STORIES_AFTER= "AfterStories";
 
-    private PerformableTree performableTree;
+    private final PerformableTree performableTree;
 
     private StoryParser(PerformableTree performableTree) {
         this.performableTree = performableTree;
@@ -64,7 +65,7 @@ public class StoryParser {
 
     public static class StoryDescription {
         private final StoryParser storyParser;
-        private List<StepCandidate> stepCandidates = new ArrayList<>();
+        private final List<StepCandidate> stepCandidates = new ArrayList<>();
         private Keywords keywords = new Keywords();
         private int testCount;
 
@@ -87,7 +88,7 @@ public class StoryParser {
         public StoryResult buildDescription() {
             List<PerformableTree.PerformableStory> stories = storyParser.performableTree.getRoot().getStories();
             List<Description> descriptions = stories.stream()
-                .map(story -> createStoryDescription(story))
+                .map(this::createStoryDescription)
                 .collect(Collectors.toList());
             descriptions.add(0, createTestDescription(Story.class, STORIES_BEFORE));
             descriptions.add(createTestDescription(Story.class, STORIES_AFTER));
@@ -98,8 +99,7 @@ public class StoryParser {
             Description description = createSuiteDescription(
                 buildStoryText(normalizeStoryName(performableStory.getStory().getName())));
             performableStory.getScenarios().forEach(
-                performableScenario -> getScenarioDescription(performableScenario).forEach(
-                    scenarioDescription -> description.addChild(scenarioDescription))
+                performableScenario -> getScenarioDescription(performableScenario).forEach(description::addChild)
             );
             return description;
         }
@@ -118,13 +118,13 @@ public class StoryParser {
                             .forEach(step -> exampleDescription.addChild(getStepDescription(step)));
                         return exampleDescription;
                     })
-                    .forEach(exampleDescription -> scenarioDescription.addChild(exampleDescription));
+                    .forEach(scenarioDescription::addChild);
             } else {
                 performableScenario.getScenario()
                     .getSteps()
                     .forEach(step -> scenarioDescription.addChild(getStepDescription(step)));
             }
-            return Arrays.asList(scenarioDescription);
+            return Collections.singletonList(scenarioDescription);
         }
 
         private Description getStepDescription(String step) {

@@ -30,7 +30,7 @@ import spock.lang.Specification
 class ExamplesStoriesTest extends Specification {
 
     @Shared
-    def runner = new JUnitRunner(ExamplesStories)
+    runner = new JUnitRunner(ExamplesStories)
     def notifier = Mock(RunNotifier)
 
     def "Test correct notifications"() {
@@ -38,53 +38,53 @@ class ExamplesStoriesTest extends Specification {
         runner.run(notifier)
 
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.startsWith("BeforeStories")})
+        1 * notifier.fireTestStarted({it.displayName.startsWith("BeforeStories")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.startsWith("BeforeStories")})
+        1 * notifier.fireTestFinished({it.displayName.startsWith("BeforeStories")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.equals("Story: Examples")})
+        1 * notifier.fireTestStarted({it.displayName.equals("Story: Examples")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.equals("Scenario: login to system")})
+        1 * notifier.fireTestStarted({it.displayName.equals("Scenario: login to system")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.contains("Example: {url=http://examplescom/login, status=OK}")})
+        1 * notifier.fireTestStarted({it.displayName.contains("Example: {url=http://examplescom/login, status=OK}")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.contains("Given login with data")})
+        1 * notifier.fireTestStarted({it.displayName.contains("Given login with data")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.contains("Given login with data")})
+        1 * notifier.fireTestFinished({it.displayName.contains("Given login with data")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.contains("When I submit login data")})
+        1 * notifier.fireTestStarted({it.displayName.contains("When I submit login data")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.contains("When I submit login data")})
+        1 * notifier.fireTestFinished({it.displayName.contains("When I submit login data")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.contains("Then user should be logged in")})
+        1 * notifier.fireTestStarted({it.displayName.contains("Then user should be logged in")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.contains("Then user should be logged in")})
+        1 * notifier.fireTestFinished({it.displayName.contains("Then user should be logged in")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.contains("Example: {url=http://examplescom/login, status=OK}")})
+        1 * notifier.fireTestFinished({it.displayName.contains("Example: {url=http://examplescom/login, status=OK}")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.contains("Example: {url=http://examplescom/logout, status=NOK}")})
+        1 * notifier.fireTestStarted({it.displayName.contains("Example: {url=http://examplescom/logout, status=NOK}")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.contains("Given login with data")})
+        1 * notifier.fireTestStarted({it.displayName.contains("Given login with data")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.contains("Given login with data")})
+        1 * notifier.fireTestFinished({it.displayName.contains("Given login with data")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.contains("When I submit login data")})
+        1 * notifier.fireTestStarted({it.displayName.contains("When I submit login data")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.contains("When I submit login data")})
+        1 * notifier.fireTestFinished({it.displayName.contains("When I submit login data")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.contains("Then user should be logged in")})
+        1 * notifier.fireTestStarted({it.displayName.contains("Then user should be logged in")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.contains("Then user should be logged in")})
+        1 * notifier.fireTestFinished({it.displayName.contains("Then user should be logged in")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.contains("Example: {url=http://examplescom/logout, status=NOK}")})
+        1 * notifier.fireTestFinished({it.displayName.contains("Example: {url=http://examplescom/logout, status=NOK}")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.equals("Scenario: login to system")})
+        1 * notifier.fireTestFinished({it.displayName.equals("Scenario: login to system")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.equals("Story: Examples")})
+        1 * notifier.fireTestFinished({it.displayName.equals("Story: Examples")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.startsWith("AfterStories")})
+        1 * notifier.fireTestStarted({it.displayName.startsWith("AfterStories")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.startsWith("AfterStories")})
+        1 * notifier.fireTestFinished({it.displayName.startsWith("AfterStories")} as Description)
     }
 
     def "Test descriptions"() {

@@ -40,15 +40,13 @@ import static org.jbehave.runner.JUnitRunnerFormatter.normalizeStoryName;
  */
 public class JUnitStepReporter extends LoggingReporter {
 
-    public static final String BEFORE_STORIES = "BeforeStories";
+    private static final String BEFORE_STORIES = "BeforeStories";
     private static final String AFTER_STORIES = "AfterStories";
 
     private final RunNotifier notifier;
-    private final int testCount;
-    private final Description rootDesctiprion;
+    private final Description rootDescription;
     private final Configuration configuration;
 
-    private int executedSteps;
     private Description currentStoryDescription;
     private Iterator<Description> scenariosDescriptions;
     private Description currentScenarioDescription;
@@ -57,23 +55,21 @@ public class JUnitStepReporter extends LoggingReporter {
     private Iterator<Description> stepsDescriptions;
     private Description currentStepDescription;
 
-    public JUnitStepReporter(RunNotifier notifier, int testCount, Description rootDescription,
+    public JUnitStepReporter(RunNotifier notifier, Description rootDescription,
                              Configuration configuration) {
         this.notifier = notifier;
-        this.testCount = testCount;
-        this.rootDesctiprion = rootDescription;
+        this.rootDescription = rootDescription;
         this.configuration = configuration;
     }
 
     @Override
     public void beforeStory(Story story, boolean givenStory) {
-        for (Description description : rootDesctiprion.getChildren()) {
+        for (Description description : rootDescription.getChildren()) {
             if (description.isTest()
                 && (isEligibleAs(story, description, BEFORE_STORIES)
                     || isEligibleAs(story, description, AFTER_STORIES))) {
                 currentStoryDescription = description;
                 notifier.fireTestStarted(currentStoryDescription);
-                executedSteps++;
 
             }
             if (description.isSuite()
@@ -147,7 +143,6 @@ public class JUnitStepReporter extends LoggingReporter {
     @Override
     public void successful(String step) {
         super.successful(step);
-        executedSteps++;
         notifier.fireTestFinished(currentStepDescription);
     }
 
@@ -166,11 +161,6 @@ public class JUnitStepReporter extends LoggingReporter {
         currentStepDescription = stepsDescriptions.next();
         super.notPerformed(step);
         notifier.fireTestIgnored(currentStepDescription);
-    }
-
-    @Override
-    public void ignorable(String step) {
-        super.ignorable(step);
     }
 
     @Override

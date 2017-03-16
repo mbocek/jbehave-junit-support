@@ -20,7 +20,7 @@ package org.jbehave.runner.story;
 
 import org.jbehave.runner.story.steps.TestSteps;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,13 +30,13 @@ import java.util.List;
 public class CompositeStepStories extends AbstractStories {
 
     @Override
-    public Object[] getStepClasses() {
-        return new Object[] { new TestSteps() };
+    protected List<?> getStepClasses() {
+        return Collections.singletonList(new TestSteps());
     }
 
     @Override
     protected List<String> storyPaths() {
-        return Arrays.asList(
+        return Collections.singletonList(
             "org/jbehave/runner/story/CompositeStep.story"
         );
     }

@@ -18,10 +18,9 @@
  */
 package org.jbehave.runner;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jbehave.core.model.*;
 import org.jbehave.core.reporters.NullStoryReporter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -30,152 +29,152 @@ import java.util.Map;
  * @author Michal Bocek
  * @since 29/08/16
  */
+@Slf4j
 public class LoggingReporter extends NullStoryReporter {
-    private static Logger logger = LoggerFactory.getLogger(LoggingReporter.class);
 
     @Override
     public void storyNotAllowed(Story story, String filter) {
-        logger.info("Story: {} not allowed for filter: {}", story.getName(), filter);
+        log.info("Story: {} not allowed for filter: {}", story.getName(), filter);
     }
 
     @Override
     public void storyCancelled(Story story, StoryDuration storyDuration) {
-        logger.info("Story: {} cancelled in: {}s", story.getName(), storyDuration.getDurationInSecs());
+        log.info("Story: {} cancelled in: {}s", story.getName(), storyDuration.getDurationInSecs());
     }
 
     @Override
     public void beforeStory(Story story, boolean givenStory) {
-        logger.info("Before story: {}", story.getName() + (givenStory ? "(given story)" : ""));
+        log.info("Before story: {}", story.getName() + (givenStory ? "(given story)" : ""));
     }
 
     @Override
     public void afterStory(boolean givenOrRestartingStory) {
-        logger.info("After story");
+        log.info("After story");
     }
 
     @Override
     public void narrative(Narrative narrative) {
         if (!narrative.isEmpty()) {
-            logger.info("Narrative:");
+            log.info("Narrative:");
         }
         if (!narrative.inOrderTo().isEmpty()) {
-            logger.info("In order to {}", narrative.inOrderTo());
+            log.info("In order to {}", narrative.inOrderTo());
         }
         if (!narrative.asA().isEmpty()) {
-            logger.info("As a {}", narrative.asA());
+            log.info("As a {}", narrative.asA());
         }
         if (!narrative.iWantTo().isEmpty()) {
-            logger.info("I want to {}", narrative.iWantTo());
+            log.info("I want to {}", narrative.iWantTo());
         }
         if (!narrative.soThat().isEmpty()) {
-            logger.info("So that {}", narrative.soThat());
+            log.info("So that {}", narrative.soThat());
         }
     }
 
     @Override
     public void lifecyle(Lifecycle lifecycle) {
         if (!lifecycle.isEmpty()) {
-            logger.info("Lifecycle: {}", lifecycle);
+            log.info("Lifecycle: {}", lifecycle);
         }
     }
 
     @Override
     public void scenarioNotAllowed(Scenario scenario, String filter) {
-        logger.info("Scenario: {} not allowed by filer: {}", scenario.getTitle(), filter);
+        log.info("Scenario: {} not allowed by filer: {}", scenario.getTitle(), filter);
     }
 
     @Override
     public void beforeScenario(String scenarioTitle) {
-        logger.info("Before scenario: {}", scenarioTitle);
+        log.info("Before scenario: {}", scenarioTitle);
     }
 
     @Override
     public void scenarioMeta(Meta meta) {
-        logger.info("Scenario meta: {}", meta);
+        log.info("Scenario meta: {}", meta);
     }
 
     @Override
     public void afterScenario() {
-        logger.info("After scenario");
+        log.info("After scenario");
     }
 
     @Override
     public void givenStories(GivenStories givenStories) {
-        logger.info("Given stories: {}", givenStories);
+        log.info("Given stories: {}", givenStories);
     }
 
     @Override
     public void givenStories(List<String> storyPaths) {
-        logger.info("Given stories: {}", storyPaths);
+        log.info("Given stories: {}", storyPaths);
     }
 
     @Override
     public void beforeExamples(List<String> steps, ExamplesTable table) {
-        logger.info("Before steps: {} with example table: {}", steps, table);
+        log.info("Before steps: {} with example table: {}", steps, table);
     }
 
     @Override
     public void example(Map<String, String> tableRow) {
-        logger.info("Example: {}", tableRow);
+        log.info("Example: {}", tableRow);
     }
 
     @Override
     public void afterExamples() {
-        logger.info("After examles");
+        log.info("After examples");
     }
 
     @Override
     public void beforeStep(String step) {
-        logger.info("Before step: {}", step);
+        log.info("Before step: {}", step);
     }
 
     @Override
     public void successful(String step) {
-        logger.info("Successful step: {}", step);
+        log.info("Successful step: {}", step);
     }
 
     @Override
     public void ignorable(String step) {
-        logger.info("Ignorable step: {}", step);
+        log.info("Ignorable step: {}", step);
     }
 
     @Override
     public void pending(String step) {
-        logger.error("Pending step: {}", step);
+        log.error("Pending step: {}", step);
     }
 
     @Override
     public void notPerformed(String step) {
-        logger.warn("Not performed step: {}", step);
+        log.warn("Not performed step: {}", step);
     }
 
     @Override
     public void failed(String step, Throwable cause) {
-        logger.error("Failed step: {} cause: {}", step, cause);
+        log.error("Failed step: {} cause: {}", step, cause);
     }
 
     @Override
     public void failedOutcomes(String step, OutcomesTable table) {
-        logger.error("Faild step: {} outcomes: {}", step, table);
+        log.error("Failed step: {} outcomes: {}", step, table);
     }
 
     @Override
     public void restarted(String step, Throwable cause) {
-        logger.info("Restarted step: {} because of: {}", step, cause);
+        log.info("Restarted step: {} because of: {}", step, cause);
     }
 
     @Override
     public void restartedStory(Story story, Throwable cause) {
-        logger.error("Restarted story: {} because of: {}", story.getName(), cause);
+        log.error("Restarted story: {} because of: {}", story.getName(), cause);
     }
 
     @Override
     public void dryRun() {
-        logger.info("Dry run");
+        log.info("Dry run");
     }
 
     @Override
     public void pendingMethods(List<String> methods) {
-        logger.error("Pending methods: {}", methods);
+        log.error("Pending methods: {}", methods);
     }
 }

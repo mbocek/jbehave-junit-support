@@ -31,7 +31,7 @@ import spock.lang.Specification
 class BasicStoryTest extends Specification {
 
     @Shared
-    def runner = new JUnitRunner(BasicStory)
+    runner = new JUnitRunner(BasicStory)
     def notifier = Mock(RunNotifier)
 
     def "Test correct notifications"() {
@@ -39,25 +39,25 @@ class BasicStoryTest extends Specification {
         runner.run(notifier)
 
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.startsWith("BeforeStories")})
+        1 * notifier.fireTestStarted({it.displayName.startsWith("BeforeStories")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.startsWith("BeforeStories")})
+        1 * notifier.fireTestFinished({it.displayName.startsWith("BeforeStories")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.equals("Story: basic_story")})
+        1 * notifier.fireTestStarted({it.displayName.equals("Story: basic_story")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.equals("Scenario: Very simple scenario")})
+        1 * notifier.fireTestStarted({it.displayName.equals("Scenario: Very simple scenario")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.contains("Given say Hello")})
+        1 * notifier.fireTestStarted({it.displayName.contains("Given say Hello")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.contains("Given say Hello")})
+        1 * notifier.fireTestFinished({it.displayName.contains("Given say Hello")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.equals("Scenario: Very simple scenario")})
+        1 * notifier.fireTestFinished({it.displayName.equals("Scenario: Very simple scenario")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.equals("Story: basic_story")})
+        1 * notifier.fireTestFinished({it.displayName.equals("Story: basic_story")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.startsWith("AfterStories")})
+        1 * notifier.fireTestStarted({it.displayName.startsWith("AfterStories")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.startsWith("AfterStories")})
+        1 * notifier.fireTestFinished({it.displayName.startsWith("AfterStories")} as Description)
     }
 
     def "Test descriptions"() {

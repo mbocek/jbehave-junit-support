@@ -31,7 +31,7 @@ import spock.lang.Specification
 class CompositeStepStoriesTest extends Specification {
 
     @Shared
-    def runner = new JUnitRunner(CompositeStepStories)
+    runner = new JUnitRunner(CompositeStepStories)
     def notifier = Mock(RunNotifier)
 
     def "Test correct notifications"() {
@@ -39,36 +39,36 @@ class CompositeStepStoriesTest extends Specification {
         runner.run(notifier)
 
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.startsWith("BeforeStories")})
+        1 * notifier.fireTestStarted({it.displayName.startsWith("BeforeStories")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.startsWith("BeforeStories")})
+        1 * notifier.fireTestFinished({it.displayName.startsWith("BeforeStories")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.equals("Story: CompositeStep")})
+        1 * notifier.fireTestStarted({it.displayName.equals("Story: CompositeStep")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.equals("Scenario: Composite step")})
+        1 * notifier.fireTestStarted({it.displayName.equals("Scenario: Composite step")} as Description)
         /*
-         * Composite step is fully reported (successed) before running children steps
+         * Composite step is fully reported (success) before running children steps
          */
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.contains("When Sign up with audit")})
+        1 * notifier.fireTestStarted({it.displayName.contains("When Sign up with audit")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.contains("When Sign up with audit")})
+        1 * notifier.fireTestFinished({it.displayName.contains("When Sign up with audit")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.contains("When Sign up user")})
+        1 * notifier.fireTestStarted({it.displayName.contains("When Sign up user")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.contains("When Sign up user")})
+        1 * notifier.fireTestFinished({it.displayName.contains("When Sign up user")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.contains("When Auditing user")})
+        1 * notifier.fireTestStarted({it.displayName.contains("When Auditing user")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.contains("When Auditing user")})
+        1 * notifier.fireTestFinished({it.displayName.contains("When Auditing user")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.equals("Scenario: Composite step")})
+        1 * notifier.fireTestFinished({it.displayName.equals("Scenario: Composite step")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.equals("Story: CompositeStep")})
+        1 * notifier.fireTestFinished({it.displayName.equals("Story: CompositeStep")} as Description)
         then:
-        1 * notifier.fireTestStarted({((Description)it).displayName.startsWith("AfterStories")})
+        1 * notifier.fireTestStarted({it.displayName.startsWith("AfterStories")} as Description)
         then:
-        1 * notifier.fireTestFinished({((Description)it).displayName.startsWith("AfterStories")})
+        1 * notifier.fireTestFinished({it.displayName.startsWith("AfterStories")} as Description)
     }
 
     def "Test descriptions"() {

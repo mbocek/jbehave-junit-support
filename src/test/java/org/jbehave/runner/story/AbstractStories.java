@@ -9,12 +9,14 @@ import org.jbehave.runner.JUnitRunner;
 import org.jbehave.runner.JUnitRunnerConfiguration;
 import org.junit.runner.RunWith;
 
+import java.util.List;
+
 /**
  * @author Michal Bocek
  * @since 16/03/2017
  */
 @RunWith(JUnitRunner.class)
-public abstract class AbstractStories extends JUnitStories{
+public abstract class AbstractStories extends JUnitStories {
 
     public AbstractStories() {
         JUnitRunnerConfiguration.recommendedConfiguration(configuredEmbedder());
@@ -30,5 +32,5 @@ public abstract class AbstractStories extends JUnitStories{
         return new InstanceStepsFactory(configuration(), getStepClasses());
     }
 
-    public abstract Object[] getStepClasses();
+    protected abstract List<?> getStepClasses();
 }

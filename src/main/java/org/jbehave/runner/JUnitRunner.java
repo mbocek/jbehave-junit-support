@@ -36,7 +36,7 @@ import org.junit.runners.model.Statement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,14 +45,10 @@ import java.util.List;
  */
 public class JUnitRunner extends BlockJUnit4ClassRunner {
 
-    private static final String AFTER_STORIES = "AfterStories";
-    private static final String BEFORE_STORIES = "BeforeStories";
-
     private final List<String> storyPaths;
     private final List<CandidateSteps> candidateSteps;
     private final Description description;
     private final Embedder configuredEmbedder;
-    private int testCount;
 
     public JUnitRunner(Class<? extends ConfigurableEmbedder> testClass)
         throws InitializationError, IllegalAccessException, InstantiationException, InvocationTargetException,
@@ -63,7 +59,7 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
         configuredEmbedder = configurableEmbedder.configuredEmbedder();
         storyPaths = getStoryPaths(configurableEmbedder);
         candidateSteps = getCandidateStepsWithNullStepMonitor(configuredEmbedder);
-        description = buildStoryDescription(testClass, configuredEmbedder.configuration(), storyPaths, candidateSteps);
+        description = buildStoryDescription(testClass, configuredEmbedder.configuration());
     }
 
     @Override
@@ -76,7 +72,7 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                JUnitStepReporter junitReporter = new JUnitStepReporter(notifier, testCount, description,
+                JUnitStepReporter junitReporter = new JUnitStepReporter(notifier, description,
                     configuredEmbedder.configuration());
 
                 configuredEmbedder.configuration()
@@ -95,12 +91,11 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
     }
 
     private Description buildStoryDescription(Class<? extends ConfigurableEmbedder> testClass,
-                                              Configuration configuration, List<String> storyPaths,
-                                              List<CandidateSteps> candidateSteps) {
+                                              Configuration configuration) {
         Description description = Description.createSuiteDescription(testClass);
         List<Description> descriptions = new ArrayList<>();
 
-        addStories(descriptions, storyPaths, configuration);
+        addStories(descriptions, configuration);
 
         for (Description currentDescription : descriptions) {
             description.addChild(currentDescription);
@@ -108,14 +103,13 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
         return description;
     }
 
-    private void addStories(List<Description> descriptions, List<String> storyPaths, Configuration configuration) {
+    private void addStories(List<Description> descriptions, Configuration configuration) {
         StoryParser.StoryResult storyResult = StoryParser.parse(createPerformableTree())
             .withCandidateSteps(candidateSteps)
             .withKeywords(configuration.keywords())
             .buildDescription();
 
         descriptions.addAll(storyResult.getStoryDescriptions());
-        testCount += storyResult.getTestCount();
     }
 
     private PerformableTree createPerformableTree() {
@@ -143,6 +137,7 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
         return candidateSteps;
     }
 
+    @SuppressWarnings("unchecked")
     private List<String> getStoryPaths(ConfigurableEmbedder configurableEmbedder)
         throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 
@@ -150,7 +145,7 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
         if (configurableEmbedder instanceof JUnitStory) {
             Configuration configuration = configurableEmbedder.configuredEmbedder().configuration();
             String story = configuration.storyPathResolver().resolve(configurableEmbedder.getClass());
-            stories = Arrays.asList(story);
+            stories = Collections.singletonList(story);
         } else {
             Method method = lookupStoryPathsMethod(configurableEmbedder.getClass());
             method.setAccessible(true);
@@ -165,24 +160,24 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
 
         Method method;
         try {
-            method = methodLookup(testClass, "storyPaths");
+            method = storyPathsLookup(testClass);
         } catch (NoSuchMethodException e) {
             method = testClass.getMethod("storyPaths", (Class[]) null);
         }
         return method;
     }
 
-    private Method methodLookup(Class<?> clazz, String methodName) throws NoSuchMethodException {
+    private Method storyPathsLookup(Class<?> clazz) throws NoSuchMethodException {
         while (clazz != null) {
             Method[] methods = clazz.getDeclaredMethods();
             for (Method method : methods) {
                 // Test any other things about it beyond the name...
-                if (method.getName().equals(methodName)) {
+                if (method.getName().equals("storyPaths")) {
                     return method;
                 }
             }
             clazz = clazz.getSuperclass();
         }
-        throw new NoSuchMethodException("Can not find method: " + methodName);
+        throw new NoSuchMethodException("Can not find method: " + "storyPaths");
     }
 }

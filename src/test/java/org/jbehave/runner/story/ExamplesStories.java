@@ -20,7 +20,7 @@ package org.jbehave.runner.story;
 
 import org.jbehave.runner.story.steps.LoginSteps;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,13 +31,13 @@ public class ExamplesStories extends AbstractStories {
 
     @Override
     protected List<String> storyPaths() {
-        return Arrays.asList(
+        return Collections.singletonList(
             "org/jbehave/runner/story/Examples.story"
         );
     }
 
     @Override
-    public Object[] getStepClasses() {
-        return new Object[] { new LoginSteps() };
+    protected List<?> getStepClasses() {
+        return Collections.singletonList(new LoginSteps());
     }
 }
