@@ -18,15 +18,7 @@
  */
 package org.jbehave.runner.story;
 
-import org.jbehave.core.configuration.Configuration;
-import org.jbehave.core.configuration.MostUsefulConfiguration;
-import org.jbehave.core.junit.JUnitStories;
-import org.jbehave.core.steps.InjectableStepsFactory;
-import org.jbehave.core.steps.InstanceStepsFactory;
-import org.jbehave.runner.JUnitRunner;
-import org.jbehave.runner.JUnitRunnerConfiguration;
 import org.jbehave.runner.story.steps.TestSteps;
-import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,21 +27,11 @@ import java.util.List;
  * @author Michal Bocek
  * @since 26/08/16
  */
-@RunWith(JUnitRunner.class)
-public class CompositeStepStories extends JUnitStories {
-
-    public CompositeStepStories() {
-        JUnitRunnerConfiguration.recommendedConfiguration(configuredEmbedder());
-    }
+public class CompositeStepStories extends AbstractStories {
 
     @Override
-    public Configuration configuration() {
-        return new MostUsefulConfiguration();
-    }
-
-    @Override
-    public InjectableStepsFactory stepsFactory() {
-        return new InstanceStepsFactory(configuration(), new TestSteps());
+    public Object[] getStepClasses() {
+        return new Object[] { new TestSteps() };
     }
 
     @Override
