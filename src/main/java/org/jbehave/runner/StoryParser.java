@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jbehave.core.configuration.Keywords;
 import org.jbehave.core.embedder.PerformableTree;
+import org.jbehave.core.model.Scenario;
 import org.jbehave.core.model.Story;
 import org.jbehave.core.steps.CandidateSteps;
 import org.jbehave.core.steps.StepCandidate;
@@ -120,11 +121,25 @@ public class StoryParser {
                     })
                     .forEach(scenarioDescription::addChild);
             } else {
+                if (hasGivenStories(performableScenario)) {
+                    addGivenStories(scenarioDescription, performableScenario.getScenario());
+                }
                 performableScenario.getScenario()
                     .getSteps()
                     .forEach(step -> scenarioDescription.addChild(getStepDescription(step)));
             }
             return Collections.singletonList(scenarioDescription);
+        }
+
+        private void addGivenStories(Description scenarioDescription, Scenario scenario) {
+            scenario.getGivenStories()
+                .getStories()
+                .forEach(story -> scenarioDescription.addChild(
+                    createTestDescription(Story.class, normalizeStoryName(story.getPath()))));
+        }
+
+        private boolean hasGivenStories(PerformableTree.PerformableScenario performableScenario) {
+            return !performableScenario.getScenario().getGivenStories().getPaths().isEmpty();
         }
 
         private Description getStepDescription(String step) {

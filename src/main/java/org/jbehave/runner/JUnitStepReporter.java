@@ -54,6 +54,7 @@ public class JUnitStepReporter extends LoggingReporter {
     private Description currentExampleDescription;
     private Iterator<Description> stepsDescriptions;
     private Description currentStepDescription;
+    private boolean givenStory;
 
     public JUnitStepReporter(RunNotifier notifier, Description rootDescription,
                              Configuration configuration) {
@@ -64,19 +65,25 @@ public class JUnitStepReporter extends LoggingReporter {
 
     @Override
     public void beforeStory(Story story, boolean givenStory) {
-        for (Description description : rootDescription.getChildren()) {
-            if (description.isTest()
-                && (isEligibleAs(story, description, BEFORE_STORIES)
+        if (givenStory) {
+            currentStepDescription = stepsDescriptions.next();
+            notifier.fireTestStarted(currentStepDescription);
+            this.givenStory = true;
+        } else {
+            for (Description description : rootDescription.getChildren()) {
+                if (description.isTest()
+                    && (isEligibleAs(story, description, BEFORE_STORIES)
                     || isEligibleAs(story, description, AFTER_STORIES))) {
-                currentStoryDescription = description;
-                notifier.fireTestStarted(currentStoryDescription);
+                    currentStoryDescription = description;
+                    notifier.fireTestStarted(currentStoryDescription);
 
-            }
-            if (description.isSuite()
-                && isEligibleAs(description, story.getName())) {
-                currentStoryDescription = description;
-                notifier.fireTestStarted(currentStoryDescription);
-                scenariosDescriptions = currentStoryDescription.getChildren().iterator();
+                }
+                if (description.isSuite()
+                    && isEligibleAs(description, story.getName())) {
+                    currentStoryDescription = description;
+                    notifier.fireTestStarted(currentStoryDescription);
+                    scenariosDescriptions = currentStoryDescription.getChildren().iterator();
+                }
             }
         }
         super.beforeStory(story, givenStory);
@@ -85,18 +92,23 @@ public class JUnitStepReporter extends LoggingReporter {
     @Override
     public void afterStory(boolean givenOrRestartingStory) {
         super.afterStory(givenOrRestartingStory);
-        if (currentStoryDescription != null) {
+        if (isAGivenStory()) {
+            notifier.fireTestFinished(currentStepDescription);
+            this.givenStory = false;
+        } else if (nonNull(currentStoryDescription)) {
             notifier.fireTestFinished(currentStoryDescription);
         }
     }
 
     @Override
     public void beforeScenario(String scenarioTitle) {
-        currentScenarioDescription = scenariosDescriptions.next();
-        stepsDescriptions = getAllChildren(currentScenarioDescription.getChildren(), new ArrayList<>()).iterator();
-        examplesDescriptions = getAllExamples(currentScenarioDescription.getChildren()).iterator();
-        notifier.fireTestStarted(currentScenarioDescription);
-        super.beforeScenario(scenarioTitle);
+        if (notAGivenStory()) {
+            currentScenarioDescription = scenariosDescriptions.next();
+            stepsDescriptions = getAllChildren(currentScenarioDescription.getChildren(), new ArrayList<>()).iterator();
+            examplesDescriptions = getAllExamples(currentScenarioDescription.getChildren()).iterator();
+            notifier.fireTestStarted(currentScenarioDescription);
+            super.beforeScenario(scenarioTitle);
+        }
     }
 
     private List<Description> getAllExamples(ArrayList<Description> children) {
@@ -130,20 +142,26 @@ public class JUnitStepReporter extends LoggingReporter {
     @Override
     public void afterScenario() {
         super.afterScenario();
-        notifier.fireTestFinished(currentScenarioDescription);
+        if (notAGivenStory()) {
+            notifier.fireTestFinished(currentScenarioDescription);
+        }
     }
 
     @Override
     public void beforeStep(String step) {
-        currentStepDescription = stepsDescriptions.next();
-        notifier.fireTestStarted(currentStepDescription);
+        if (notAGivenStory()) {
+            currentStepDescription = stepsDescriptions.next();
+            notifier.fireTestStarted(currentStepDescription);
+        }
         super.beforeStep(step);
     }
 
     @Override
     public void successful(String step) {
         super.successful(step);
-        notifier.fireTestFinished(currentStepDescription);
+        if (notAGivenStory()) {
+            notifier.fireTestFinished(currentStepDescription);
+        }
     }
 
     @Override
@@ -152,37 +170,47 @@ public class JUnitStepReporter extends LoggingReporter {
             cause = cause.getCause();
         }
         super.failed(step, cause);
-        notifier.fireTestFailure(new Failure(currentStepDescription, cause));
-        notifier.fireTestFinished(currentStepDescription);
+        if (notAGivenStory()) {
+            notifier.fireTestFailure(new Failure(currentStepDescription, cause));
+            notifier.fireTestFinished(currentStepDescription);
+        }
     }
 
     @Override
     public void notPerformed(String step) {
-        currentStepDescription = stepsDescriptions.next();
         super.notPerformed(step);
-        notifier.fireTestIgnored(currentStepDescription);
+        if (notAGivenStory()) {
+            currentStepDescription = stepsDescriptions.next();
+            notifier.fireTestIgnored(currentStepDescription);
+        }
     }
 
     @Override
     public void pending(String step) {
-        currentStepDescription = stepsDescriptions.next();
         super.pending(step);
-        notifier.fireTestIgnored(currentStepDescription);
+        if (notAGivenStory()) {
+            currentStepDescription = stepsDescriptions.next();
+            notifier.fireTestIgnored(currentStepDescription);
+        }
     }
 
     @Override
     public void example(Map<String, String> tableRow) {
-        if (nonNull(currentExampleDescription)) {
-            notifier.fireTestFinished(currentExampleDescription);
+        if (notAGivenStory()) {
+            if (nonNull(currentExampleDescription)) {
+                notifier.fireTestFinished(currentExampleDescription);
+            }
+            currentExampleDescription = examplesDescriptions.next();
+            notifier.fireTestStarted(currentExampleDescription);
         }
-        currentExampleDescription = examplesDescriptions.next();
-        notifier.fireTestStarted(currentExampleDescription);
         super.example(tableRow);
     }
 
     @Override
     public void afterExamples() {
-        notifier.fireTestFinished(currentExampleDescription);
+        if (notAGivenStory()) {
+            notifier.fireTestFinished(currentExampleDescription);
+        }
         super.afterExamples();
     }
 
@@ -192,5 +220,13 @@ public class JUnitStepReporter extends LoggingReporter {
 
     private boolean isEligibleAs(Description description, String storyName) {
         return description.getDisplayName().equals(buildStoryText(normalizeStoryName(storyName)));
+    }
+
+    private boolean isAGivenStory() {
+        return this.givenStory;
+    }
+
+    private boolean notAGivenStory() {
+        return !this.givenStory;
     }
 }
