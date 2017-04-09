@@ -3,13 +3,35 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.jbehave</groupId>
+    <groupId>org.jbehave-junit-support</groupId>
     <artifactId>jbehave-junit-support</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
-    <name>jbehave-junit-support</name>
+    <version>1.0.0-SNAPSHOT</version>
 
-    <url>http://maven.apache.org</url>
+    <name>JBehave junit support</name>
+    <description>Support for running jbehave stories as junit test cases.</description>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Michal Bocek</name>
+            <email>michal.bocek@gmail.com</email>
+            <organization>jbehave-support</organization>
+            <organizationUrl>https://github.com/jbehave-support</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/jbehave-support/jbehave-junit-support.git</connection>
+        <developerConnection>scm:git:ssh://github.com:jbehave-support/jbehave-junit-support.git</developerConnection>
+        <url>https://github.com/jbehave-support/jbehave-junit-support/tree/master</url>
+    </scm>
 
     <properties>
         <version.jdk>1.8</version.jdk>
