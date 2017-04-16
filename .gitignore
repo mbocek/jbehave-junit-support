@@ -13,6 +13,9 @@
 .idea/jsLibraryMappings.xml
 .idea/kotlinc.xml
 .idea/sonarIssues.xml
+.idea/compiler.xml
+.idea/misc.xml
+.idea/modules.xml
 
 # Sensitive or high-churn files:
 .idea/dataSources.ids
