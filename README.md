@@ -6,9 +6,29 @@
 
 Support library which should help with running jbahave BDD tests. 
 
-TODO:
-Integration:
-- maven dependency
-- integration in java story file
+## Integration to java project
+Setup in the maven project:
+```xml
+<dependency>
+    <groupId>org.jbehavesupport</groupId>
+    <artifactId>jbehave-junit-support</artifactId>
+</dependency>
+```
 
+Very simple java class with runner implementation:
+```java
+@RunWith(JUnitRunner.class)
+public class BasicStory extends JUnitStory {
 
+    public BasicStory() {
+        JUnitRunnerConfiguration.recommendedConfiguration(configuredEmbedder());
+    }
+
+    @Override
+    public Configuration configuration() {
+        return new MostUsefulConfiguration();
+    }
+
+    ...
+}
+```
