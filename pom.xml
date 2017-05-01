@@ -20,16 +20,15 @@
         <developer>
             <name>Michal Bocek</name>
             <email>michal.bocek@gmail.com</email>
-            <organization>jbehave-support</organization>
-            <organizationUrl>https://github.com/jbehave-support</organizationUrl>
+            <organization>jbehavesupport.org</organization>
+            <organizationUrl>https://github.com/jbehavesupport</organizationUrl>
         </developer>
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/jbehave-support/jbehave-junit-support.git</connection>
-        <developerConnection>scm:git:ssh://github.com:jbehave-support/jbehave-junit-support.git</developerConnection>
-        <url>https://github.com/jbehave-support/jbehave-junit-support/tree/master</url>
-      <tag>jbehave-junit-support-1.0.0</tag>
+        <connection>scm:git:git://github.com/jbehavesupport/jbehave-junit-support.git</connection>
+        <developerConnection>scm:git:ssh://github.com:jbehavesupport/jbehave-junit-support.git</developerConnection>
+        <url>https://github.com/jbehavesupport/jbehave-junit-support/tree/master</url>
   </scm>
 
     <properties>
