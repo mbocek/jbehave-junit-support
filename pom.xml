@@ -26,8 +26,8 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/jbehavesupport/jbehave-junit-support.git</connection>
-        <developerConnection>scm:git:ssh://github.com:jbehavesupport/jbehave-junit-support.git</developerConnection>
+        <connection>scm:git:https://github.com/jbehavesupport/jbehave-junit-support.git</connection>
+        <developerConnection>scm:git:https://github.com/jbehavesupport/jbehave-junit-support.git</developerConnection>
         <url>https://github.com/jbehavesupport/jbehave-junit-support/tree/master</url>
   </scm>
 
