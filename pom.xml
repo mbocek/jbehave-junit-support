@@ -4,7 +4,7 @@
     <groupId>org.jbehavesupport</groupId>
     <artifactId>jbehave-junit-support</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <name>JBehave junit support</name>
     <description>Support for running jbehave stories as junit test cases.</description>
@@ -29,7 +29,7 @@
         <connection>scm:git:https://github.com/jbehavesupport/jbehave-junit-support.git</connection>
         <developerConnection>scm:git:https://github.com/jbehavesupport/jbehave-junit-support.git</developerConnection>
         <url>https://github.com/jbehavesupport/jbehave-junit-support/tree/master</url>
-        <tag>HEAD</tag>
+        <tag>jbehave-junit-support-1.0.0</tag>
     </scm>
 
     <properties>
