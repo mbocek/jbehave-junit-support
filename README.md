@@ -32,3 +32,20 @@ public class BasicStory extends JUnitStory {
     ...
 }
 ```
+
+Stories can be run in two modes:
+- step
+- story
+
+Reporting level can be chosen by jvm environment variable for step level:
+```
+-Djbehave.report.level=STEP
+```
+In the IDE reporting is shown:
+![Step level](docs/images/step-level.png)
+Step level is default reporting level. For story level you should use:
+```
+-Djbehave.report.level=STORY
+```
+In the IDE reporting is shown:
+![Story level](docs/images/story-level.png)
