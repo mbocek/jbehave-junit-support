@@ -211,4 +211,13 @@ public class JUnitStepReporter extends AbstractJUnitReporter {
         }
         super.afterExamples();
     }
+
+    @Override
+    public void ignorable(String step) {
+        super.ignorable(step);
+        if (notAGivenStory()) {
+            currentStepDescription = stepsDescriptions.next();
+            notifier.fireTestIgnored(currentStepDescription);
+        }
+    }
 }
