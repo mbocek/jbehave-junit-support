@@ -47,13 +47,9 @@ class CommentStepStoriesTest extends Specification {
         then:
         1 * notifier.fireTestStarted({it.displayName.equals("Scenario: Very simple scenario")} as Description)
         then:
-        1 * notifier.fireTestIgnored({it.displayName.contains("!-- comment")} as Description)
-        then:
         1 * notifier.fireTestStarted({it.displayName.contains("Given say Hello")} as Description)
         then:
         1 * notifier.fireTestFinished({it.displayName.contains("Given say Hello")} as Description)
-        then:
-        1 * notifier.fireTestIgnored({it.displayName.contains("!-- comment 2")} as Description)
         then:
         1 * notifier.fireTestFinished({it.displayName.equals("Scenario: Very simple scenario")} as Description)
         then:
@@ -78,9 +74,7 @@ class CommentStepStoriesTest extends Specification {
         children[0].displayName =~ /BeforeStories.*/
         children[1].displayName == "Story: CommentStep"
         children[1].children[0].displayName == "Scenario: Very simple scenario"
-        children[1].children[0].children[0].displayName =~ /!-- comment\(.*\)/
-        children[1].children[0].children[1].displayName =~ /Given say Hello\(.*\)/
-        children[1].children[0].children[2].displayName =~ /!-- comment 2\(.*\)/
+        children[1].children[0].children[0].displayName =~ /Given say Hello\(.*\)/
         children[2].displayName =~ /AfterStories.*/
     }
 
