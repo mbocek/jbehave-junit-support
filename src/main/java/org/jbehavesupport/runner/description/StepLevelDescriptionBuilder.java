@@ -19,22 +19,19 @@
 
 package org.jbehavesupport.runner.description;
 
-import static org.jbehavesupport.runner.JUnitRunnerFormatter.buildExampleText;
-import static org.jbehavesupport.runner.JUnitRunnerFormatter.buildScenarioText;
-import static org.jbehavesupport.runner.JUnitRunnerFormatter.buildStoryText;
-import static org.jbehavesupport.runner.JUnitRunnerFormatter.normalizeStoryName;
-import static org.junit.runner.Description.createSuiteDescription;
-import static org.junit.runner.Description.createTestDescription;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.jbehave.core.embedder.PerformableTree;
 import org.jbehave.core.model.Scenario;
 import org.jbehave.core.model.Story;
 import org.jbehave.core.steps.StepCandidate;
 import org.junit.runner.Description;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.jbehavesupport.runner.JUnitRunnerFormatter.*;
+import static org.junit.runner.Description.createSuiteDescription;
+import static org.junit.runner.Description.createTestDescription;
 
 /**
  * @author Michal Bocek
@@ -64,7 +61,7 @@ class StepLevelDescriptionBuilder extends AbstractDescriptionBuilder {
                         buildExampleText(getKeywords(), examplePerformableScenario.getParameters().toString()));
                     performableScenario.getScenario()
                         .getSteps()
-                        .forEach(step -> exampleDescription.addChild(getStepDescription(step)));
+                        .forEach(step -> addIfNotAComment(exampleDescription, step));
                     return exampleDescription;
                 })
                 .forEach(scenarioDescription::addChild);
@@ -74,9 +71,15 @@ class StepLevelDescriptionBuilder extends AbstractDescriptionBuilder {
             }
             performableScenario.getScenario()
                 .getSteps()
-                .forEach(step -> scenarioDescription.addChild(getStepDescription(step)));
+                .forEach(step -> addIfNotAComment(scenarioDescription, step));
         }
         return Collections.singletonList(scenarioDescription);
+    }
+
+    private void addIfNotAComment(Description description, String step) {
+        if (isNotAComment(step)) {
+            description.addChild(getStepDescription(step));
+        }
     }
 
     private void addGivenStories(Description scenarioDescription, Scenario scenario) {
@@ -111,7 +114,7 @@ class StepLevelDescriptionBuilder extends AbstractDescriptionBuilder {
         if (stepCandidate.isComposite()) {
             result = createSuiteDescription(step);
             Arrays.stream(stepCandidate.composedSteps())
-                .forEach(childStep -> result.addChild(getStepDescription(childStep)));
+                .forEach(childStep -> addIfNotAComment(result, childStep));
         } else {
             addTestCount();
             result = createTestDescription(stepCandidate.getStepsType(), step);
@@ -124,5 +127,15 @@ class StepLevelDescriptionBuilder extends AbstractDescriptionBuilder {
             .filter(stepCandidate -> stepCandidate.matches(step))
             .findFirst()
             .orElse(null);
+    }
+
+    private boolean isNotAComment(final String stringStepOneLine) {
+        boolean result;
+        if (getStepCandidates().isEmpty()) {
+            result = true;
+        } else {
+            result = !getStepCandidates().get(0).comment(stringStepOneLine);
+        }
+        return result;
     }
 }
