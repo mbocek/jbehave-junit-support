@@ -39,12 +39,16 @@ import static org.junit.runner.Description.createTestDescription;
  */
 class StepLevelDescriptionBuilder extends AbstractDescriptionBuilder {
 
+    private DescriptionGenerator descriptions;
+
     public StepLevelDescriptionBuilder(final PerformableTree story) {
         super(story);
+        descriptions = new DescriptionGenerator();
     }
 
     protected Description createStoryDescription(PerformableTree.PerformableStory performableStory) {
-        Description description = createSuiteDescription(buildStoryText(normalizeStoryName(performableStory.getStory().getName())));
+        String storyString = buildStoryText(normalizeStoryName(performableStory.getStory().getName()));
+        Description description = createSuiteDescription(descriptions.getUnique(storyString));
         performableStory.getScenarios().forEach(
             performableScenario -> getScenarioDescription(performableScenario).forEach(description::addChild)
         );
@@ -57,8 +61,8 @@ class StepLevelDescriptionBuilder extends AbstractDescriptionBuilder {
             performableScenario.getExamples()
                 .stream()
                 .map(examplePerformableScenario -> {
-                    Description exampleDescription = createSuiteDescription(
-                        buildExampleText(getKeywords(), examplePerformableScenario.getParameters().toString()));
+                    String exampleString = buildExampleText(getKeywords(), examplePerformableScenario.getParameters().toString());
+                    Description exampleDescription = createSuiteDescription(descriptions.getUnique(exampleString));
                     performableScenario.getScenario()
                         .getSteps()
                         .forEach(step -> addIfNotAComment(exampleDescription, step));
@@ -85,8 +89,10 @@ class StepLevelDescriptionBuilder extends AbstractDescriptionBuilder {
     private void addGivenStories(Description scenarioDescription, Scenario scenario) {
         scenario.getGivenStories()
             .getStories()
-            .forEach(story -> scenarioDescription.addChild(
-                createTestDescription(Story.class, normalizeStoryName(story.getPath()))));
+            .forEach(story -> {
+                String storyString = normalizeStoryName(story.getPath());
+                scenarioDescription.addChild(createTestDescription(Story.class, descriptions.getUnique(storyString)));
+            });
     }
 
     private boolean hasGivenStories(PerformableTree.PerformableScenario performableScenario) {
@@ -106,18 +112,18 @@ class StepLevelDescriptionBuilder extends AbstractDescriptionBuilder {
 
     private Description getStepDescription(Class<?> stepClass, String step) {
         addTestCount();
-        return createTestDescription(stepClass, step);
+        return createTestDescription(stepClass, descriptions.getUnique(step));
     }
 
     private Description getStepDescription(StepCandidate stepCandidate, String step) {
         Description result;
         if (stepCandidate.isComposite()) {
-            result = createSuiteDescription(step);
+            result = createSuiteDescription(descriptions.getUnique(step));
             Arrays.stream(stepCandidate.composedSteps())
                 .forEach(childStep -> addIfNotAComment(result, childStep));
         } else {
             addTestCount();
-            result = createTestDescription(stepCandidate.getStepsType(), step);
+            result = createTestDescription(stepCandidate.getStepsType(), descriptions.getUnique(step));
         }
         return result;
     }
