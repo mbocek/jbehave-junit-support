@@ -77,6 +77,7 @@ public class JUnitStoryReporter extends AbstractJUnitReporter {
             this.givenStory = false;
         } else if (nonNull(currentStoryDescription)) {
             notifier.fireTestFinished(currentStoryDescription);
+            currentStoryDescription = null;
         }
     }
 }

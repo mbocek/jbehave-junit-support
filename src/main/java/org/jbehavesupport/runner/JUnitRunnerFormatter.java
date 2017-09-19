@@ -35,15 +35,15 @@ public class JUnitRunnerFormatter {
     }
 
     public static String buildStoryText(String text) {
-        return formatWithSemicolon(STORY, text);
+        return formatWithSemicolon(STORY, normalizeStoryName(text));
     }
 
     public static String buildScenarioText(Keywords keywords, String text) {
-        return formatWithoutSemicolon(keywords.scenario(), text);
+        return formatWithoutSemicolon(keywords.scenario(), cleanup(text));
     }
 
     public static String buildExampleText(Keywords keywords, String text) {
-        return formatWithoutSemicolon(keywords.examplesTableRow(), text);
+        return formatWithoutSemicolon(keywords.examplesTableRow(), cleanup(text));
     }
 
     public static String normalizeStoryName(String storyName) {
@@ -53,7 +53,20 @@ public class JUnitRunnerFormatter {
         } else {
             result = storyName;
         }
-        return result;
+        return cleanup(result);
+    }
+
+    public static String normalizeStep(String step) {
+        return cleanup(fistline(step));
+    }
+
+    public static String removeClass(String text) {
+        return text.replaceAll("\\(.*\\)", "");
+    }
+
+    private static String fistline(String text) {
+        int newLineIndex = text.indexOf("\n");
+        return text.substring(0, newLineIndex == -1 ? text.length() : newLineIndex - 1);
     }
 
     private static String formatWithoutSemicolon(String prefix, String text) {
@@ -66,5 +79,9 @@ public class JUnitRunnerFormatter {
 
     private static String stripDots(String text) {
         return text.replaceAll("\\.", "");
+    }
+
+    private static String cleanup(String text) {
+        return text.replaceAll("[\r\n]+", ", ").replaceAll("[()]", "|");
     }
 }

@@ -39,15 +39,15 @@ import static org.junit.runner.Description.createTestDescription;
  */
 class StepLevelDescriptionBuilder extends AbstractDescriptionBuilder {
 
-    private DescriptionGenerator descriptions;
+    private UniqueDescriptionGenerator descriptions;
 
     public StepLevelDescriptionBuilder(final PerformableTree story) {
         super(story);
-        descriptions = new DescriptionGenerator();
+        descriptions = new UniqueDescriptionGenerator();
     }
 
     protected Description createStoryDescription(PerformableTree.PerformableStory performableStory) {
-        String storyString = buildStoryText(normalizeStoryName(performableStory.getStory().getName()));
+        String storyString = buildStoryText(performableStory.getStory().getName());
         Description description = createSuiteDescription(descriptions.getUnique(storyString));
         performableStory.getScenarios().forEach(
             performableScenario -> getScenarioDescription(performableScenario).forEach(description::addChild)
@@ -112,18 +112,19 @@ class StepLevelDescriptionBuilder extends AbstractDescriptionBuilder {
 
     private Description getStepDescription(Class<?> stepClass, String step) {
         addTestCount();
-        return createTestDescription(stepClass, descriptions.getUnique(step));
+        return createTestDescription(stepClass, descriptions.getUnique(normalizeStep(step)));
     }
 
     private Description getStepDescription(StepCandidate stepCandidate, String step) {
         Description result;
+        String uniqueStep = descriptions.getUnique(normalizeStep(step));
         if (stepCandidate.isComposite()) {
-            result = createSuiteDescription(descriptions.getUnique(step));
+            result = createSuiteDescription(uniqueStep);
             Arrays.stream(stepCandidate.composedSteps())
                 .forEach(childStep -> addIfNotAComment(result, childStep));
         } else {
             addTestCount();
-            result = createTestDescription(stepCandidate.getStepsType(), descriptions.getUnique(step));
+            result = createTestDescription(stepCandidate.getStepsType(), uniqueStep);
         }
         return result;
     }

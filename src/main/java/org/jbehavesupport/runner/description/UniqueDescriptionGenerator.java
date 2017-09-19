@@ -19,28 +19,23 @@
 
 package org.jbehavesupport.runner.description;
 
-import org.jbehave.core.embedder.PerformableTree;
-import org.jbehave.core.model.Story;
-import org.junit.runner.Description;
-
-import static org.jbehavesupport.runner.JUnitRunnerFormatter.buildStoryText;
-import static org.junit.runner.Description.createTestDescription;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Michal Bocek
- * @since 4/23/2017
+ * @since 19/09/2017
  */
-class StoryLevelDescriptionBuilder extends AbstractDescriptionBuilder {
+public class UniqueDescriptionGenerator {
 
-    private UniqueDescriptionGenerator descriptions = new UniqueDescriptionGenerator();
+    private Set<String> descriptions = new HashSet<>();
 
-    public StoryLevelDescriptionBuilder(final PerformableTree story) {
-        super(story);
-    }
-
-    @Override
-    protected Description createStoryDescription(final PerformableTree.PerformableStory story) {
-        addTestCount();
-        return createTestDescription(Story.class, buildStoryText(descriptions.getUnique(story.getStory().getName())));
+    public String getUnique(String description) {
+        String result = description;
+        while (descriptions.contains(result)) {
+            result += '\u200B'; // zero-width-space
+        }
+        descriptions.add(result);
+        return result;
     }
 }
