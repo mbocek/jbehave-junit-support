@@ -16,35 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.jbehavesupport.runner.story;
 
-package org.jbehavesupport.runner.description
+import org.jbehavesupport.runner.story.steps.LoginSteps;
 
-import spock.lang.Shared
-import spock.lang.Specification
-import spock.lang.Unroll
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Michal Bocek
- * @since 19/09/2017
+ * @since 26/08/16
  */
-class DescriptionGeneratorTest extends Specification {
-    @Shared
-    def generator = new DescriptionGenerator()
+public class MultipleStories extends AbstractStories {
 
-    @Unroll
-    def "test getUnique for #description with expected length #length"() {
-        when:
-        def uniqueString = generator.getUnique(description)
+    @Override
+    protected List<String> storyPaths() {
+        return Arrays.asList(
+            "org/jbehavesupport/runner/story/multipleScenario/Scenario01.story",
+            "org/jbehavesupport/runner/story/multipleScenario/Scenario01-1.story",
+            "org/jbehavesupport/runner/story/multipleScenario/Scenario03.story"
+        );
+    }
 
-        then:
-        length == uniqueString.length()
-
-        where:
-        description||length
-        "test"||4
-        "test1"|| 5
-        "test"||5
-        "test"||6
-
+    @Override
+    protected List<?> getStepClasses() {
+        return Collections.singletonList(new LoginSteps());
     }
 }

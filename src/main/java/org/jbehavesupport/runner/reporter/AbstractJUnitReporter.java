@@ -22,7 +22,7 @@ import org.jbehave.core.model.Story;
 import org.junit.runner.Description;
 
 import static org.jbehavesupport.runner.JUnitRunnerFormatter.buildStoryText;
-import static org.jbehavesupport.runner.JUnitRunnerFormatter.normalizeStoryName;
+import static org.jbehavesupport.runner.JUnitRunnerFormatter.removeClass;
 
 /**
  * @author Michal Bocek
@@ -39,7 +39,7 @@ public class AbstractJUnitReporter extends LoggingReporter {
     }
 
     protected boolean isEligibleAs(Description description, String storyName) {
-        return description.getDisplayName().startsWith(buildStoryText(normalizeStoryName(storyName)));
+        return removeClass(description.getDisplayName()).equals(buildStoryText(storyName));
     }
 
     protected boolean isAGivenStory() {

@@ -17,25 +17,34 @@
  * under the License.
  */
 
-package org.jbehavesupport.runner.description;
+package org.jbehavesupport.runner.description
 
-import java.util.HashSet;
-import java.util.Set;
+import spock.lang.Shared
+import spock.lang.Specification
+import spock.lang.Unroll
 
 /**
  * @author Michal Bocek
  * @since 19/09/2017
  */
-public class DescriptionGenerator {
+class UniqueDescriptionGeneratorTest extends Specification {
+    @Shared
+    def generator = new UniqueDescriptionGenerator()
 
-    private Set<String> descriptions = new HashSet<>();
+    @Unroll
+    def "test getUnique for #description with expected length #length"() {
+        when:
+        def uniqueString = generator.getUnique(description)
 
-    public String getUnique(String description) {
-        String result = description;
-        while (descriptions.contains(result)) {
-            result += '\u200B'; // zero-width-space
-        }
-        descriptions.add(result);
-        return result;
+        then:
+        length == uniqueString.length()
+
+        where:
+        description||length
+        "test"||4
+        "test1"|| 5
+        "test"||5
+        "test"||6
+
     }
 }
