@@ -60,9 +60,11 @@ public class JUnitStepReporter extends AbstractJUnitReporter {
     @Override
     public void beforeStory(Story story, boolean givenStory) {
         if (givenStory) {
-            currentStepDescription = stepsDescriptions.next();
-            notifier.fireTestStarted(currentStepDescription);
-            this.givenStory = true;
+            if (notAGivenStory()) {
+                currentStepDescription = stepsDescriptions.next();
+                notifier.fireTestStarted(currentStepDescription);
+            }
+            this.givenStories.push(true);
         } else {
             beforeStory(story);
         }
@@ -90,12 +92,15 @@ public class JUnitStepReporter extends AbstractJUnitReporter {
     @Override
     public void afterStory(boolean givenOrRestartingStory) {
         super.afterStory(givenOrRestartingStory);
-        if (isAGivenStory()) {
+        if (this.givenStories.size() == 1) {
             notifier.fireTestFinished(currentStepDescription);
-            this.givenStory = false;
+            this.givenStories.pop();
+        } else if (isAGivenStory()) {
+            this.givenStories.pop();
         } else if (nonNull(currentStoryDescription)) {
             notifier.fireTestFinished(currentStoryDescription);
         }
+
     }
 
     @Override
