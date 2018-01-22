@@ -46,7 +46,7 @@ public class JUnitStoryReporter extends AbstractJUnitReporter {
     @Override
     public void beforeStory(Story story, boolean givenStory) {
         if (givenStory) {
-            this.givenStory = true;
+            this.givenStories.push(true);
         } else {
             beforeStory(story);
         }
@@ -74,7 +74,7 @@ public class JUnitStoryReporter extends AbstractJUnitReporter {
     public void afterStory(boolean givenOrRestartingStory) {
         super.afterStory(givenOrRestartingStory);
         if (isAGivenStory()) {
-            this.givenStory = false;
+            this.givenStories.pop();
         } else if (nonNull(currentStoryDescription)) {
             notifier.fireTestFinished(currentStoryDescription);
             currentStoryDescription = null;
