@@ -18,14 +18,11 @@
  */
 package org.jbehavesupport.runner.reporter;
 
-import org.jbehave.core.model.Story;
-import org.junit.runner.Description;
-
 import static org.jbehavesupport.runner.JUnitRunnerFormatter.buildStoryText;
 import static org.jbehavesupport.runner.JUnitRunnerFormatter.removeClass;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
+import org.jbehave.core.model.Story;
+import org.junit.runner.Description;
 
 /**
  * @author Michal Bocek
@@ -35,7 +32,7 @@ public class AbstractJUnitReporter extends LoggingReporter {
     protected static final String BEFORE_STORIES = "BeforeStories";
     protected static final String AFTER_STORIES = "AfterStories";
 
-    protected Deque<Boolean> givenStories = new ArrayDeque<>();
+    protected int givenStories = 0;
 
     protected boolean isEligibleAs(Story story, Description description, String storyName) {
         return story.getName().equals(storyName) && description.getDisplayName().startsWith(storyName);
@@ -46,10 +43,10 @@ public class AbstractJUnitReporter extends LoggingReporter {
     }
 
     protected boolean isAGivenStory() {
-        return !this.givenStories.isEmpty();
+        return this.givenStories > 0;
     }
 
     protected boolean notAGivenStory() {
-        return this.givenStories.isEmpty();
+        return this.givenStories == 0;
     }
 }
