@@ -18,12 +18,12 @@
  */
 package org.jbehavesupport.runner.reporter;
 
+import static java.util.Objects.nonNull;
+
 import org.jbehave.core.configuration.Configuration;
 import org.jbehave.core.model.Story;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
-
-import static java.util.Objects.nonNull;
 
 /**
  * @author Michal Bocek
@@ -46,7 +46,7 @@ public class JUnitStoryReporter extends AbstractJUnitReporter {
     @Override
     public void beforeStory(Story story, boolean givenStory) {
         if (givenStory) {
-            this.givenStories.push(true);
+            this.givenStories++;
         } else {
             beforeStory(story);
         }
@@ -74,7 +74,7 @@ public class JUnitStoryReporter extends AbstractJUnitReporter {
     public void afterStory(boolean givenOrRestartingStory) {
         super.afterStory(givenOrRestartingStory);
         if (isAGivenStory()) {
-            this.givenStories.pop();
+            this.givenStories--;
         } else if (nonNull(currentStoryDescription)) {
             notifier.fireTestFinished(currentStoryDescription);
             currentStoryDescription = null;

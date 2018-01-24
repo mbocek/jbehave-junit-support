@@ -18,19 +18,19 @@
  */
 package org.jbehavesupport.runner.reporter;
 
-import org.jbehave.core.configuration.Configuration;
-import org.jbehave.core.failures.UUIDExceptionWrapper;
-import org.jbehave.core.model.Story;
-import org.junit.runner.Description;
-import org.junit.runner.notification.Failure;
-import org.junit.runner.notification.RunNotifier;
+import static java.util.Objects.nonNull;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Objects.nonNull;
+import org.jbehave.core.configuration.Configuration;
+import org.jbehave.core.failures.UUIDExceptionWrapper;
+import org.jbehave.core.model.Story;
+import org.junit.runner.Description;
+import org.junit.runner.notification.Failure;
+import org.junit.runner.notification.RunNotifier;
 
 /**
  * @author Michal Bocek
@@ -64,7 +64,7 @@ public class JUnitStepReporter extends AbstractJUnitReporter {
                 currentStepDescription = stepsDescriptions.next();
                 notifier.fireTestStarted(currentStepDescription);
             }
-            this.givenStories.push(true);
+            this.givenStories++;
         } else {
             beforeStory(story);
         }
@@ -92,11 +92,11 @@ public class JUnitStepReporter extends AbstractJUnitReporter {
     @Override
     public void afterStory(boolean givenOrRestartingStory) {
         super.afterStory(givenOrRestartingStory);
-        if (this.givenStories.size() == 1) {
+        if (this.givenStories == 1) {
             notifier.fireTestFinished(currentStepDescription);
-            this.givenStories.pop();
+            this.givenStories--;
         } else if (isAGivenStory()) {
-            this.givenStories.pop();
+            this.givenStories--;
         } else if (nonNull(currentStoryDescription)) {
             notifier.fireTestFinished(currentStoryDescription);
         }
