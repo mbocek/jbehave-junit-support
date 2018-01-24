@@ -20,6 +20,7 @@ package org.jbehavesupport.runner
 
 import org.jbehavesupport.runner.story.FailedStepStories
 import org.junit.runner.Description
+import org.junit.runner.notification.Failure
 import org.junit.runner.notification.RunNotifier
 import spock.lang.Specification
 import spock.util.environment.RestoreSystemProperties
@@ -61,6 +62,8 @@ class FailedStepStoriesTest extends Specification {
         1 * notifier.fireTestFinished({it.displayName.contains("When Auditing user")} as Description)
         then:
         1 * notifier.fireTestStarted({it.displayName.contains("Then Failed step")} as Description)
+        then:
+        1 * notifier.fireTestFailure({it.description.displayName.contains("Then Failed step")} as Failure)
         then:
         1 * notifier.fireTestFinished({it.displayName.contains("Then Failed step")} as Description)
         then:
@@ -114,6 +117,8 @@ class FailedStepStoriesTest extends Specification {
         1 * notifier.fireTestFinished({it.displayName.startsWith("BeforeStories")} as Description)
         then:
         1 * notifier.fireTestStarted({it.displayName.startsWith("Story: FailedStep")} as Description)
+        then:
+        1 * notifier.fireTestFailure({it.description.displayName.startsWith("Story: FailedStep")} as Failure)
         then:
         1 * notifier.fireTestFinished({it.displayName.startsWith("Story: FailedStep")} as Description)
         then:
