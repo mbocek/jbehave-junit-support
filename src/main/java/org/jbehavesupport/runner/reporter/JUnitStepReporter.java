@@ -173,8 +173,8 @@ public class JUnitStepReporter extends AbstractJUnitReporter {
             cause = cause.getCause();
         }
         super.failed(step, cause);
+        notifier.fireTestFailure(new Failure(currentStepDescription, cause));
         if (notAGivenStory()) {
-            notifier.fireTestFailure(new Failure(currentStepDescription, cause));
             notifier.fireTestFinished(currentStepDescription);
         }
     }

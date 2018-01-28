@@ -18,14 +18,14 @@
  */
 package org.jbehavesupport.runner.reporter;
 
-import static java.util.Objects.nonNull;
-
 import org.jbehave.core.configuration.Configuration;
 import org.jbehave.core.failures.UUIDExceptionWrapper;
 import org.jbehave.core.model.Story;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
+
+import static java.util.Objects.nonNull;
 
 /**
  * @author Michal Bocek
@@ -89,8 +89,6 @@ public class JUnitStoryReporter extends AbstractJUnitReporter {
             cause = cause.getCause();
         }
         super.failed(step, cause);
-        if (notAGivenStory()) {
-            notifier.fireTestFailure(new Failure(currentStoryDescription, cause));
-        }
+        notifier.fireTestFailure(new Failure(currentStoryDescription, cause));
     }
 }
