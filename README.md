@@ -1,4 +1,5 @@
 # JUnit support for JBehave
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jbehavesupport/jbehave-junit-support/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jbehavesupport/jbehave-junit-support)
 [![Build Status](https://travis-ci.org/jbehavesupport/jbehave-junit-support.svg?branch=master)](https://travis-ci.org/jbehavesupport/jbehave-junit-support)
 [![Coverage Status](https://coveralls.io/repos/github/jbehavesupport/jbehave-junit-support/badge.svg?branch=master)](https://coveralls.io/github/jbehavesupport/jbehave-junit-support?branch=master)
 [![codebeat badge](https://codebeat.co/badges/adbb13e0-c146-4f58-847b-c1db713efbb7)](https://codebeat.co/projects/github-com-jbehavesupport-jbehave-junit-support-master)
