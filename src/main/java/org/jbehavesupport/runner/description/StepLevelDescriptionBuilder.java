@@ -20,6 +20,7 @@
 package org.jbehavesupport.runner.description;
 
 import org.jbehave.core.embedder.PerformableTree;
+import org.jbehave.core.model.GivenStory;
 import org.jbehave.core.model.Scenario;
 import org.jbehave.core.model.Story;
 import org.jbehave.core.steps.StepCandidate;
@@ -49,6 +50,9 @@ class StepLevelDescriptionBuilder extends AbstractDescriptionBuilder {
     protected Description createStoryDescription(PerformableTree.PerformableStory performableStory) {
         String storyString = buildStoryText(performableStory.getStory().getName());
         Description description = createSuiteDescription(descriptions.getUnique(storyString));
+        if (hasGivenStories(performableStory)) {
+            addGivenStories(description, performableStory.getStory());
+        }
         performableStory.getScenarios().forEach(
             performableScenario -> getScenarioDescription(performableScenario).forEach(description::addChild)
         );
@@ -91,12 +95,26 @@ class StepLevelDescriptionBuilder extends AbstractDescriptionBuilder {
             .getStories()
             .forEach(story -> {
                 String storyString = normalizeStoryName(story.getPath());
-                scenarioDescription.addChild(createTestDescription(Story.class, descriptions.getUnique(storyString)));
+                scenarioDescription.addChild(createTestDescription(GivenStory.class, descriptions.getUnique(storyString)));
+            });
+    }
+
+
+    private void addGivenStories(Description storyDescription, Story story) {
+        story.getGivenStories()
+            .getStories()
+            .forEach(givenStory -> {
+                String storyString = normalizeStoryName(givenStory.getPath());
+                storyDescription.addChild(createTestDescription(GivenStory.class, descriptions.getUnique(storyString)));
             });
     }
 
     private boolean hasGivenStories(PerformableTree.PerformableScenario performableScenario) {
         return !performableScenario.getScenario().getGivenStories().getPaths().isEmpty();
+    }
+
+    private boolean hasGivenStories(PerformableTree.PerformableStory performableStory) {
+        return !performableStory.getStory().getGivenStories().getPaths().isEmpty();
     }
 
     private Description getStepDescription(String step) {

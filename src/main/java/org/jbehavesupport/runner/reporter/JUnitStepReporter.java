@@ -18,19 +18,19 @@
  */
 package org.jbehavesupport.runner.reporter;
 
-import static java.util.Objects.nonNull;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.jbehave.core.configuration.Configuration;
 import org.jbehave.core.failures.UUIDExceptionWrapper;
 import org.jbehave.core.model.Story;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Objects.nonNull;
 
 /**
  * @author Michal Bocek
@@ -61,7 +61,7 @@ public class JUnitStepReporter extends AbstractJUnitReporter {
     public void beforeStory(Story story, boolean givenStory) {
         if (givenStory) {
             if (notAGivenStory()) {
-                currentStepDescription = stepsDescriptions.next();
+                currentStepDescription = nonNull(stepsDescriptions) ? stepsDescriptions.next() : scenariosDescriptions.next();
                 notifier.fireTestStarted(currentStepDescription);
             }
             this.givenStories++;
