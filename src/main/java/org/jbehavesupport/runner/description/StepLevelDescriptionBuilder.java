@@ -24,12 +24,14 @@ import org.jbehave.core.model.GivenStory;
 import org.jbehave.core.model.Scenario;
 import org.jbehave.core.model.Story;
 import org.jbehave.core.steps.StepCandidate;
+import org.jbehave.core.steps.StepType;
 import org.junit.runner.Description;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Objects.nonNull;
 import static org.jbehavesupport.runner.JUnitRunnerFormatter.*;
 import static org.junit.runner.Description.createSuiteDescription;
 import static org.junit.runner.Description.createTestDescription;
@@ -41,6 +43,7 @@ import static org.junit.runner.Description.createTestDescription;
 class StepLevelDescriptionBuilder extends AbstractDescriptionBuilder {
 
     private UniqueDescriptionGenerator descriptions;
+    private String previousNonAndStep;
 
     public StepLevelDescriptionBuilder(final PerformableTree story) {
         super(story);
@@ -148,10 +151,14 @@ class StepLevelDescriptionBuilder extends AbstractDescriptionBuilder {
     }
 
     private StepCandidate findCandidateStep(String step) {
-        return getStepCandidates().stream()
-            .filter(stepCandidate -> stepCandidate.matches(step))
+        StepCandidate resultStepCandidate = getStepCandidates().stream()
+            .filter(stepCandidate -> stepCandidate.matches(step, previousNonAndStep))
             .findFirst()
             .orElse(null);
+        if (nonNull(resultStepCandidate) && resultStepCandidate.getStepType() != StepType.AND) {
+            previousNonAndStep = resultStepCandidate.getStartingWord() + " ";
+        }
+        return resultStepCandidate;
     }
 
     private boolean isNotAComment(final String stringStepOneLine) {
