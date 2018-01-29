@@ -61,7 +61,7 @@ public class JUnitStepReporter extends AbstractJUnitReporter {
     public void beforeStory(Story story, boolean givenStory) {
         if (givenStory) {
             if (notAGivenStory()) {
-                currentStepDescription = nonNull(stepsDescriptions) ? stepsDescriptions.next() : scenariosDescriptions.next();
+                currentStepDescription = hasNextStepsDescriptions() ? stepsDescriptions.next() : scenariosDescriptions.next();
                 notifier.fireTestStarted(currentStepDescription);
             }
             this.givenStories++;
@@ -69,6 +69,10 @@ public class JUnitStepReporter extends AbstractJUnitReporter {
             beforeStory(story);
         }
         super.beforeStory(story, givenStory);
+    }
+
+    private boolean hasNextStepsDescriptions() {
+        return nonNull(stepsDescriptions) && stepsDescriptions.hasNext();
     }
 
     private void beforeStory(Story story) {
