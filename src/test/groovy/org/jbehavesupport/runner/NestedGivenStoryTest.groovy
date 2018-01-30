@@ -98,17 +98,9 @@ class NestedGivenStoryTest extends Specification {
         runner.run(notifier)
 
         then:
-        1 * notifier.fireTestStarted({it.displayName.startsWith("BeforeStories")} as Description)
-        then:
-        1 * notifier.fireTestFinished({it.displayName.startsWith("BeforeStories")} as Description)
-        then:
         1 * notifier.fireTestStarted({it.displayName.startsWith("Story: NestedGivenStory")} as Description)
         then:
         1 * notifier.fireTestFinished({it.displayName.startsWith("Story: NestedGivenStory")} as Description)
-        then:
-        1 * notifier.fireTestStarted({it.displayName.startsWith("AfterStories")} as Description)
-        then:
-        1 * notifier.fireTestFinished({it.displayName.startsWith("AfterStories")} as Description)
     }
 
     @RestoreSystemProperties
@@ -123,10 +115,8 @@ class NestedGivenStoryTest extends Specification {
 
         then:
         desc.testClass == NestedGivenStories
-        children.size() == 3
-        children[0].displayName =~ "BeforeStories"
-        children[1].displayName =~ "Story: NestedGivenStory"
-        children[1].children.size() == 0
-        children[2].displayName =~ "AfterStories"
+        children.size() == 1
+        children[0].displayName =~ "Story: NestedGivenStory"
+        children[0].children.size() == 0
     }
 }

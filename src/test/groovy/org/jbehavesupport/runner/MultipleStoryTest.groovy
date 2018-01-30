@@ -148,10 +148,6 @@ class MultipleStoryTest extends Specification {
         runner.run(notifier)
 
         then:
-        1 * notifier.fireTestStarted({it.displayName.startsWith("BeforeStories")} as Description)
-        then:
-        1 * notifier.fireTestFinished({it.displayName.startsWith("BeforeStories")} as Description)
-        then:
         1 * notifier.fireTestStarted({it.displayName.startsWith("Story: Scenario01")} as Description)
         then:
         1 * notifier.fireTestFinished({it.displayName.startsWith("Story: Scenario01")} as Description)
@@ -163,10 +159,6 @@ class MultipleStoryTest extends Specification {
         1 * notifier.fireTestStarted({it.displayName.startsWith("Story: Scenario03")} as Description)
         then:
         1 * notifier.fireTestFinished({it.displayName.startsWith("Story: Scenario03")} as Description)
-        then:
-        1 * notifier.fireTestStarted({it.displayName.startsWith("AfterStories")} as Description)
-        then:
-        1 * notifier.fireTestFinished({it.displayName.startsWith("AfterStories")} as Description)
     }
 
     @RestoreSystemProperties
@@ -181,14 +173,12 @@ class MultipleStoryTest extends Specification {
 
         then:
         desc.testClass == MultipleStories
-        children.size() == 5
-        children[0].displayName =~ "BeforeStories"
-        children[1].displayName =~ "Story: Scenario01"
+        children.size() == 3
+        children[0].displayName =~ "Story: Scenario01"
+        children[0].children.size() == 0
+        children[1].displayName =~ "Story: Scenario01-1"
         children[1].children.size() == 0
-        children[2].displayName =~ "Story: Scenario01-1"
+        children[2].displayName =~ "Story: Scenario03"
         children[2].children.size() == 0
-        children[3].displayName =~ "Story: Scenario03"
-        children[3].children.size() == 0
-        children[4].displayName =~ "AfterStories"
     }
 }

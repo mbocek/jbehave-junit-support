@@ -82,23 +82,16 @@ class CommentStepStoriesTest extends Specification {
     @RestoreSystemProperties
     def "Test correct notifications for story level reporter"() {
         given:
+        System.setProperty("jbehave.report.level", "STORY")
         def runner = new JUnitRunner(CommentStepStories)
 
         when:
         runner.run(notifier)
 
         then:
-        1 * notifier.fireTestStarted({it.displayName.startsWith("BeforeStories")} as Description)
+        1 * notifier.fireTestStarted({it.displayName.startsWith("Story: CommentStep")} as Description)
         then:
-        1 * notifier.fireTestFinished({it.displayName.startsWith("BeforeStories")} as Description)
-        then:
-        1 * notifier.fireTestStarted({it.displayName.equals("Story: CommentStep")} as Description)
-        then:
-        1 * notifier.fireTestFinished({it.displayName.equals("Story: CommentStep")} as Description)
-        then:
-        1 * notifier.fireTestStarted({it.displayName.startsWith("AfterStories")} as Description)
-        then:
-        1 * notifier.fireTestFinished({it.displayName.startsWith("AfterStories")} as Description)
+        1 * notifier.fireTestFinished({it.displayName.startsWith("Story: CommentStep")} as Description)
     }
 
     @RestoreSystemProperties
@@ -113,10 +106,8 @@ class CommentStepStoriesTest extends Specification {
 
         then:
         desc.testClass == CommentStepStories
-        children.size() == 3
-        children[0].displayName =~ /BeforeStories.*/
-        children[1].displayName =~ "Story: CommentStep"
-        children[1].children.size() == 0
-        children[2].displayName =~ /AfterStories.*/
+        children.size() == 1
+        children[0].displayName =~ /Story: CommentStep.*/
+        children[0].children.size() == 0
     }
 }

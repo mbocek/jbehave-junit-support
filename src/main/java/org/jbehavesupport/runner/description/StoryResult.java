@@ -33,5 +33,4 @@ import org.junit.runner.Description;
 @AllArgsConstructor
 public class StoryResult {
     private final List<Description> storyDescriptions;
-    private final int testCount;
 }
