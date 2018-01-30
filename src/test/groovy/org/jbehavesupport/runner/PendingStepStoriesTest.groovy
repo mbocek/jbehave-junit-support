@@ -20,6 +20,7 @@ package org.jbehavesupport.runner
 
 import org.jbehavesupport.runner.story.PendingStepStories
 import org.junit.runner.Description
+import org.junit.runner.notification.Failure
 import org.junit.runner.notification.RunNotifier
 import spock.lang.Specification
 import spock.util.environment.RestoreSystemProperties
@@ -100,6 +101,8 @@ class PendingStepStoriesTest extends Specification {
         1 * notifier.fireTestFinished({it.displayName.startsWith("BeforeStories")} as Description)
         then:
         1 * notifier.fireTestStarted({it.displayName.startsWith("Story: PendingStep")} as Description)
+        then:
+        1 * notifier.fireTestFailure({it.description.displayName.contains("Story: PendingStep")} as Failure)
         then:
         1 * notifier.fireTestFinished({it.displayName.startsWith("Story: PendingStep")} as Description)
         then:
