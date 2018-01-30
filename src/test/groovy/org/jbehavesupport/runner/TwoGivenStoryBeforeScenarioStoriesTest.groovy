@@ -123,10 +123,6 @@ class TwoGivenStoryBeforeScenarioStoriesTest extends Specification {
         runner.run(notifier)
 
         then:
-        1 * notifier.fireTestStarted({it.displayName.startsWith("BeforeStories")} as Description)
-        then:
-        1 * notifier.fireTestFinished({it.displayName.startsWith("BeforeStories")} as Description)
-        then:
         1 * notifier.fireTestStarted({it.displayName.startsWith("Story: GivenStoryBeforeScenario")} as Description)
         then:
         1 * notifier.fireTestFinished({it.displayName.startsWith("Story: GivenStoryBeforeScenario")} as Description)
@@ -134,10 +130,6 @@ class TwoGivenStoryBeforeScenarioStoriesTest extends Specification {
         1 * notifier.fireTestStarted({it.displayName.startsWith("Story: SecondGivenStoryBeforeScenario")} as Description)
         then:
         1 * notifier.fireTestFinished({it.displayName.startsWith("Story: SecondGivenStoryBeforeScenario")} as Description)
-        then:
-        1 * notifier.fireTestStarted({it.displayName.startsWith("AfterStories")} as Description)
-        then:
-        1 * notifier.fireTestFinished({it.displayName.startsWith("AfterStories")} as Description)
     }
 
     @RestoreSystemProperties
@@ -152,12 +144,10 @@ class TwoGivenStoryBeforeScenarioStoriesTest extends Specification {
 
         then:
         desc.testClass == TwoGivenStoryBeforeScenarioStories
-        children.size() == 4
-        children[0].displayName =~ /BeforeStories.*/
-        children[1].displayName =~ /Story: GivenStoryBeforeScenario.*/
+        children.size() == 2
+        children[0].displayName =~ /Story: GivenStoryBeforeScenario.*/
+        children[0].children.size() == 0
+        children[1].displayName =~ /Story: SecondGivenStoryBeforeScenario.*/
         children[1].children.size() == 0
-        children[2].displayName =~ /Story: SecondGivenStoryBeforeScenario.*/
-        children[2].children.size() == 0
-        children[3].displayName =~ /AfterStories.*/
     }
 }

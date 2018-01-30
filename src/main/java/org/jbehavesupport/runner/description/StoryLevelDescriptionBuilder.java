@@ -19,12 +19,15 @@
 
 package org.jbehavesupport.runner.description;
 
+import static org.jbehavesupport.runner.JUnitRunnerFormatter.buildStoryText;
+import static org.junit.runner.Description.createTestDescription;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.jbehave.core.embedder.PerformableTree;
 import org.jbehave.core.model.Story;
 import org.junit.runner.Description;
-
-import static org.jbehavesupport.runner.JUnitRunnerFormatter.buildStoryText;
-import static org.junit.runner.Description.createTestDescription;
 
 /**
  * @author Michal Bocek
@@ -38,9 +41,19 @@ class StoryLevelDescriptionBuilder extends AbstractDescriptionBuilder {
         super(story);
     }
 
+
+    @Override
+    public StoryResult buildDescription() {
+        List<Description> descriptions = getStory().getRoot()
+            .getStories()
+            .stream()
+            .map(this::createStoryDescription)
+            .collect(Collectors.toList());
+        return new StoryResult(descriptions);
+    }
+
     @Override
     protected Description createStoryDescription(final PerformableTree.PerformableStory story) {
-        addTestCount();
         return createTestDescription(Story.class, buildStoryText(descriptions.getUnique(story.getStory().getName())));
     }
 }

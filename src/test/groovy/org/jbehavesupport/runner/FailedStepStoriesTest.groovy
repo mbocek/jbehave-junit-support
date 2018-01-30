@@ -112,19 +112,11 @@ class FailedStepStoriesTest extends Specification {
         runner.run(notifier)
 
         then:
-        1 * notifier.fireTestStarted({it.displayName.startsWith("BeforeStories")} as Description)
-        then:
-        1 * notifier.fireTestFinished({it.displayName.startsWith("BeforeStories")} as Description)
-        then:
         1 * notifier.fireTestStarted({it.displayName.startsWith("Story: FailedStep")} as Description)
         then:
         1 * notifier.fireTestFailure({it.description.displayName.startsWith("Story: FailedStep")} as Failure)
         then:
         1 * notifier.fireTestFinished({it.displayName.startsWith("Story: FailedStep")} as Description)
-        then:
-        1 * notifier.fireTestStarted({it.displayName.startsWith("AfterStories")} as Description)
-        then:
-        1 * notifier.fireTestFinished({it.displayName.startsWith("AfterStories")} as Description)
     }
 
     @RestoreSystemProperties
@@ -139,10 +131,8 @@ class FailedStepStoriesTest extends Specification {
 
         then:
         desc.testClass == FailedStepStories
-        children.size() == 3
-        children[0].displayName =~ "BeforeStories"
-        children[1].displayName =~ "Story: FailedStep"
-        children[1].children.size() == 0
-        children[2].displayName =~ "AfterStories"
+        children.size() == 1
+        children[0].displayName =~ /Story: FailedStep.*/
+        children[0].children.size() == 0
     }
 }

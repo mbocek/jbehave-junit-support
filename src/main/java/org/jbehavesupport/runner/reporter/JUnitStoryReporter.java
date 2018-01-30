@@ -18,8 +18,6 @@
  */
 package org.jbehavesupport.runner.reporter;
 
-import static java.util.Objects.nonNull;
-
 import org.jbehave.core.configuration.Configuration;
 import org.jbehave.core.failures.PendingStepFound;
 import org.jbehave.core.failures.UUIDExceptionWrapper;
@@ -27,6 +25,8 @@ import org.jbehave.core.model.Story;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
+
+import static java.util.Objects.nonNull;
 
 /**
  * @author Michal Bocek
@@ -51,26 +51,15 @@ public class JUnitStoryReporter extends AbstractJUnitReporter {
         if (givenStory) {
             this.givenStories++;
         } else {
-            beforeStory(story);
+            for (Description description : rootDescription.getChildren()) {
+                if (description.isTest()
+                    && isEligibleAs(description, story.getName())) {
+                    currentStoryDescription = description;
+                    notifier.fireTestStarted(currentStoryDescription);
+                }
+            }
         }
         super.beforeStory(story, givenStory);
-    }
-
-    private void beforeStory(Story story) {
-        for (Description description : rootDescription.getChildren()) {
-            if (description.isTest()
-                && (isEligibleAs(story, description, BEFORE_STORIES)
-                || isEligibleAs(story, description, AFTER_STORIES))) {
-                currentStoryDescription = description;
-                notifier.fireTestStarted(currentStoryDescription);
-
-            }
-            if (description.isTest()
-                && isEligibleAs(description, story.getName())) {
-                currentStoryDescription = description;
-                notifier.fireTestStarted(currentStoryDescription);
-            }
-        }
     }
 
     @Override

@@ -19,30 +19,26 @@
 
 package org.jbehavesupport.runner.description;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.jbehave.core.configuration.Keywords;
 import org.jbehave.core.embedder.PerformableTree;
-import org.jbehave.core.model.Story;
 import org.jbehave.core.steps.CandidateSteps;
 import org.jbehave.core.steps.StepCandidate;
 import org.junit.runner.Description;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.junit.runner.Description.createTestDescription;
 
 /**
  * @author Michal Bocek
  * @since 4/23/2017
  */
+@RequiredArgsConstructor
 public abstract class AbstractDescriptionBuilder implements DescriptionBuilder {
 
-    private static final String STORIES_BEFORE = "BeforeStories";
-    private static final String STORIES_AFTER= "AfterStories";
-
-    private final PerformableTree story;
+    public static final String STORIES_BEFORE = "BeforeStories";
+    public static final String STORIES_AFTER= "AfterStories";
 
     @Getter
     private final List<StepCandidate> stepCandidates = new ArrayList<>();
@@ -51,11 +47,7 @@ public abstract class AbstractDescriptionBuilder implements DescriptionBuilder {
     private Keywords keywords = new Keywords();
 
     @Getter
-    private int testCount;
-
-    public AbstractDescriptionBuilder(final PerformableTree story) {
-        this.story = story;
-    }
+    private final PerformableTree story;
 
     @Override
     public DescriptionBuilder withCandidateSteps(List<CandidateSteps> candidateSteps) {
@@ -69,22 +61,6 @@ public abstract class AbstractDescriptionBuilder implements DescriptionBuilder {
     public DescriptionBuilder withKeywords(Keywords keywords) {
         this.keywords = keywords;
         return this;
-    }
-
-    @Override
-    public StoryResult buildDescription() {
-        List<Description> descriptions = story.getRoot()
-            .getStories()
-            .stream()
-            .map(this::createStoryDescription)
-            .collect(Collectors.toList());
-        descriptions.add(0, createTestDescription(Story.class, STORIES_BEFORE));
-        descriptions.add(createTestDescription(Story.class, STORIES_AFTER));
-        return new StoryResult(descriptions, testCount);
-    }
-
-    public void addTestCount() {
-        testCount++;
     }
 
     protected abstract Description createStoryDescription(PerformableTree.PerformableStory performableStory);
