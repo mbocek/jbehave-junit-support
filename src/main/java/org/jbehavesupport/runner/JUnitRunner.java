@@ -18,12 +18,6 @@
  */
 package org.jbehavesupport.runner;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jbehave.core.ConfigurableEmbedder;
@@ -45,6 +39,12 @@ import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Michal Bocek
@@ -137,7 +137,7 @@ public class JUnitRunner extends BlockJUnit4ClassRunner {
         BatchFailures failures = new BatchFailures(configuredEmbedder.embedderControls().verboseFailures());
         PerformableTree performableTree = new PerformableTree();
         PerformableTree.RunContext context = performableTree.newRunContext(configuredEmbedder.configuration(),
-            configuredEmbedder.stepsFactory(),
+            configuredEmbedder.stepsFactory().createCandidateSteps(),
             configuredEmbedder.embedderMonitor(),
             configuredEmbedder.metaFilter(), failures);
 
